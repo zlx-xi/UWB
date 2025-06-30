@@ -1145,8 +1145,8 @@
                 </div>
                 
                 <!-- User Image Section -->
-                <div class="user-image-section">
-                    <img id="userImage" src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngtree.com%2Ffreepng%2Fhappy-dog-sitting-calmly_19783364.html&psig=AOvVaw2aWSqqFn1TSLHmSTnP6XEu&ust=1751089887882000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCMDGo7f0kI4DFQAAAAAdAAAAABAE" alt="User" class="user-image">
+                    <div class="user-image-section">
+                        <img id="userImage" src="images/happy .jpg" alt="User" class="user-image">
                     <input type="file" id="imageUpload" class="file-upload" accept="image/*" style="display: none;">
                     <label for="imageUpload" class="btn btn-upload">
                         <span>📷</span>
@@ -1316,7 +1316,7 @@
                     <div class="region-card" id="region1">
                         <div class="region-title">🦾 Arm</div>
                         <div class="region-status" id="region1Status">Pending</div>
-                        <img src="../software picture/arm.gif" alt="Arm">
+                        <img src="images/arm.gif" alt="Arm">
                         <button class="btn btn-file" style="width:100%;margin-top:10px;" onclick="loadRegionFile(0)">📁 Load file</button>
                         <div class="thickness-bars-horizontal">
                             <div class="thickness-bar-h">
@@ -1338,7 +1338,7 @@
                     <div class="region-card" id="region2">
                         <div class="region-title">🦵 Thigh</div>
                         <div class="region-status" id="region2Status">Pending</div>
-                        <img src="../software picture/thigh.gif" alt="Thigh">
+                        <img src="images/thigh.gif" alt="Thigh">
                         <button class="btn btn-file" style="width:100%;margin-top:10px;" onclick="loadRegionFile(1)">📁 Load file</button>
                         <div class="thickness-bars-horizontal">
                             <div class="thickness-bar-h">
@@ -1360,7 +1360,7 @@
                     <div class="region-card" id="region3">
                         <div class="region-title">🫁 Abdomen</div>
                         <div class="region-status" id="region3Status">Pending</div>
-                        <img src="../software picture/abomdand.gif" alt="Abdomen">
+                        <img src="images/abomdand.gif" alt="Abdomen">
                         <button class="btn btn-file" style="width:100%;margin-top:10px;" onclick="loadRegionFile(2)">📁 Load file</button>
                         <div class="thickness-bars-horizontal">
                             <div class="thickness-bar-h">
@@ -1408,11 +1408,11 @@
         </div>
     </div>
     <!-- JS logic will be added here for region file loading, DogFit index, donut, and history -->
-    <script src="x_scaler.js"></script>
-    <script src="y_scaler.js"></script>
-    <script src="model_output0.js"></script>
-    <script src="model_output1.js"></script>
-    <script src="model_output2.js"></script>
+    <script src="js/x_scaler.js"></script>
+    <script src="js/y_scaler.js"></script>
+    <script src="js/model_output0.js"></script>
+    <script src="js/model_output1.js"></script>
+    <script src="js/model_output2.js"></script>
     <script>
     // ================= Global Variables =================
     const regionNames = ["Arm", "Thigh", "Abdomen"];
@@ -2517,9 +2517,9 @@
     // ================= 放大显示部位图片弹窗 =================
     function showRegionImageModal(regionIdx, onClose) {
         const regionImages = [
-            { title: "Arm", src: "../software picture/arm.gif" },
-            { title: "Thigh", src: "../software picture/thigh.gif" },
-            { title: "Abdomen", src: "../software picture/abomdand.gif" }
+            { title: "Arm", src: "images/arm.gif" },
+            { title: "Thigh", src: "images/thigh.gif" },
+            { title: "Abdomen", src: "images/abomdand.gif" }
         ];
         const region = regionImages[regionIdx];
         const modal = document.createElement('div');
