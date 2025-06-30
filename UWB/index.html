@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Body Composition - Home</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(120deg, #e0f7fa 0%, #e3e9f7 100%);
+            color: #1a2a3a;
+        }
+        .navbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px 60px 0 60px;
+            box-sizing: border-box;
+            background: transparent;
+        }
+        .navbar .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #2056a8;
+            letter-spacing: 1px;
+        }
+        .navbar .nav-links {
+            display: flex;
+            gap: 36px;
+        }
+        .navbar .nav-link {
+            color: #2056a8;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1.05rem;
+            opacity: 0.8;
+            transition: color 0.2s, opacity 0.2s;
+        }
+        .navbar .nav-link:hover {
+            color: #4ade80;
+            opacity: 1;
+        }
+        .navbar .nav-btn {
+            background: linear-gradient(90deg, #2056a8 0%, #4ade80 100%);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 28px;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: none;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .navbar .nav-btn:hover {
+            background: linear-gradient(90deg, #163d6b 0%, #10b981 100%);
+            box-shadow: 0 2px 12px rgba(32,86,168,0.10);
+        }
+        .main-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 0;
+        }
+        .left-content {
+            flex: 1.2;
+            padding-left: 60px;
+            z-index: 2;
+        }
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #2056a8;
+            margin-bottom: 18px;
+            line-height: 1.08;
+            letter-spacing: -1px;
+        }
+        .main-desc {
+            font-size: 1.25rem;
+            color: #2056a8;
+            margin-bottom: 38px;
+            max-width: 420px;
+            opacity: 0.85;
+        }
+        .main-btns {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .main-btn {
+            padding: 18px 38px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(90deg, #2056a8 0%, #4ade80 100%);
+            color: #fff;
+            cursor: pointer;
+            box-shadow: none;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .main-btn:hover {
+            background: linear-gradient(90deg, #163d6b 0%, #10b981 100%);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .right-img {
+            flex: 1.5;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            min-width: 350px;
+            position: relative;
+        }
+        .dog-img {
+            width: 480px;
+            max-width: 90vw;
+            
+            object-fit: contain;
+            
+            
+            
+            transition: transform 0.3s;
+        }
+        .dog-img:hover {
+            transform: scale(1.03) rotate(-2deg);
+        }
+        @media (max-width: 900px) {
+            .main-section {
+                flex-direction: column;
+                padding: 0 10px;
+            }
+            .left-content {
+                padding-left: 0;
+                text-align: center;
+            }
+            .right-img {
+                justify-content: center;
+            }
+            .dog-img {
+                width: 90vw;
+                max-width: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <span class="logo">Pet Health</span>
+        <div class="nav-links">
+            <a class="nav-link" href="#">Products</a>
+            <a class="nav-link" href="#">About</a>
+            <a class="nav-link" href="#">Contact</a>
+            <button class="nav-btn" onclick="window.location.href='web_m_2_signal.html'">DogFit Mode</button>
+        </div>
+    </div>
+    <div class="main-section">
+        <div class="left-content">
+            <div class="main-title">Pet Body Composition</div>
+            <div class="main-desc">
+                Support your pet's health journey with advanced UWB-based tissue analysis.<br>
+                Choose a mode to start your prediction and health management.
+            </div>
+            <div class="main-btns">
+                <button class="main-btn" onclick="window.location.href='web_m_1_signal.html'">Signal Processing Mode</button>
+                <button class="main-btn" onclick="window.location.href='web_m_2_signal.html'">DogFit Body Composition Mode</button>
+            </div>
+        </div>
+        <div class="right-img">
+            <img class="dog-img" src="https://pngimg.com/d/dog_PNG50348.png" alt="Dog">
+        </div>
+    </div>
+</body>
+</html> 

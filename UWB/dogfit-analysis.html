@@ -1,0 +1,2556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DogFit Body Composition Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #2c3e50;
+            font-size: 14px;
+            line-height: 1.6;
+        
+        }
+
+        .main-container {
+            display: flex;
+            max-width: 78%;
+            margin: 0 auto;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 320px;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-panel {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: #f8fbff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(32, 86, 168, 0.08);
+            padding: 24px;
+            border: 1px solid #e8f2ff;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(32, 86, 168, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8f2ff;
+            background: linear-gradient(135deg, #f8fbff 0%, #e8f2ff 100%);
+            margin: -24px -24px 20px -24px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1e3a8a;
+            letter-spacing: -0.5px;
+        }
+
+        .user-image {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            display: block;
+            border: 4px solid #3b82f6;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        /* User Information Section Improvements */
+        .user-image-section {
+            text-align: center;
+            margin-bottom: 24px;
+            padding: 20px 0;
+            border-bottom: 1px solid #e8f2ff;
+        }
+
+        .btn-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 16px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: 2px dashed #10b981;
+            transition: all 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .form-section {
+            margin-bottom: 24px;
+        }
+
+        .form-row {
+            margin-bottom: 20px;
+        }
+
+        .form-row.two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .form-label::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            transition: width 0.3s ease;
+        }
+
+        .form-group:focus-within .form-label::after {
+            width: 100%;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: #374151;
+            position: relative;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-input:hover, .form-select:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .save-section {
+            padding-top: 20px;
+            border-top: 1px solid #e8f2ff;
+        }
+
+        .btn-save {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-save:active {
+            transform: translateY(0);
+        }
+
+        .btn-save:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+        }
+
+        .btn-secondary:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.5;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        /* DogFit Index Section */
+        .dogfit-index-section {
+            text-align: center;
+        }
+
+        .dogfit-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .dogfit-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+
+        /* New Composition Cards Layout */
+        .composition-cards {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .composition-card {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+            border: 1px solid #e8f2ff;
+        }
+
+        .composition-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .composition-card-title {
+            color: #3a506b;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .dogfit-card .composition-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dog-icon {
+            color: #f9a826;
+        }
+
+        .chart-container {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .progress-ring {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#f9a826 0deg, #f9a826 0deg, #f5f7fa 0deg, #f5f7fa 360deg);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.5s ease;
+        }
+
+        .progress-ring.fat {
+            background: conic-gradient(#66bb6a 0deg, #66bb6a 0deg, #f5f7fa 0deg, #f5f7fa 360deg);
+        }
+
+        .progress-ring.muscle {
+            background: conic-gradient(#42a5f5 0deg, #42a5f5 0deg, #f5f7fa 0deg, #f5f7fa 360deg);
+        }
+
+        .progress-text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3a506b;
+        }
+
+        .progress-label {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #6e84a3;
+            font-size: 14px;
+        }
+
+        .no-data {
+            color: #a7adba;
+            font-size: 14px;
+        }
+
+        .status-label {
+            color: #66bb6a;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status-label.low {
+            color: #ec407a;
+        }
+
+        .status-label.normal {
+            color: #66bb6a;
+        }
+
+        /* Step Indicators */
+        .step-indicators {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e8f2ff;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-dot.completed, .step-dot.current {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3b82f6;
+            text-align: center;
+        }
+
+        .step-label.pending {
+            color: #6b7280;
+        }
+
+        .step-action {
+            font-size: 10px;
+            font-weight: 500;
+            color: #3b82f6;
+            text-align: center;
+        }
+
+        .step-action.pending {
+            color: #9ca3af;
+        }
+
+        /* Region Cards */
+        .region-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .region-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid #e8f2ff;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(32, 86, 168, 0.08);
+        }
+
+        .region-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(32, 86, 168, 0.12);
+        }
+
+        .region-card.completed {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .region-card.error {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        .region-card img {
+            width: 120px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+
+        .region-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .region-status {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .region-card.completed .region-status {
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .region-card.error .region-status {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .history-section {
+            max-width: 500px; /* 您可以根据需要调整这个值 */
+            max-height: 400px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(32, 86, 168, 0.08);
+            padding: 16px;
+            border: 1px solid #e8f2ff;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e8f2ff;
+        }
+
+        .history-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 2px;
+        }
+
+        .history-content {
+            background: #f8fbff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f2ff;
+            position: relative;
+        }
+
+        .history-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8, #3b82f6);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .chart-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e8f2ff;
+            box-shadow: 0 2px 8px rgba(32, 86, 168, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .chart-section:hover {
+            box-shadow: 0 4px 16px rgba(32, 86, 168, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .chart-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .chart-title {
+            font-weight: 700;
+            color: #5B7AAC;
+            font-size: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e8f2ff;
+        }
+
+        .chart-title-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .chart-title.fat .chart-title-icon {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #16a34a;
+        }
+
+        .chart-title.muscle .chart-title-icon {
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
+            color: #2563eb;
+        }
+
+        .clear-history-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-history-btn:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-1px);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #e8f2ff;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 12px;
+        }
+
+        .history-value {
+            font-weight: 700;
+            color: #1e40af;
+            font-size: 13px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                max-width: 100%;
+            }
+            
+            .donut-history-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .region-cards {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            
+            /* Top row responsive */
+            .right-panel > div:first-child {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Composition cards responsive */
+            .composition-cards {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .composition-card {
+                flex: none;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 16px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .step-indicators {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .region-cards {
+                grid-template-columns: 1fr;
+            }
+        
+           
+            
+            .donut-history-section {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            /* Top row mobile responsive */
+            .right-panel > div:first-child {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            /* Composition cards mobile */
+            .composition-cards {
+                gap: 12px;
+            }
+            
+            .composition-card {
+                padding: 20px;
+            }
+            
+            .chart-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .progress-ring {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .progress-text {
+                font-size: 28px;
+            }
+            
+            .composition-card-title {
+                font-size: 16px;
+            }
+            
+            /* User information mobile responsive */
+            .form-row.two-columns {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .user-image-section {
+                padding: 16px 0;
+                margin-bottom: 20px;
+            }
+            
+            .user-image {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .form-section {
+                margin-bottom: 20px;
+            }
+            
+            .form-row {
+                margin-bottom: 16px;
+            }
+            
+            .btn-save {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .btn-upload {
+                padding: 10px 16px;
+                font-size: 14px;
+            }
+            
+            /* History section mobile responsive */
+            .history-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .history-title {
+                font-size: 16px;
+            }
+            
+            .history-content {
+                padding: 16px;
+            }
+            
+            .chart-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .chart-title {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .chart-title-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 12px;
+            
+            
+            }
+        }
+
+        /* Additional Visual Enhancements */
+        .form-input:hover, .form-select:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .card-header:hover {
+            background: linear-gradient(135deg, #f1f5ff 0%, #dbeafe 100%);
+        }
+
+        .step-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .region-card:hover {
+            border-color: #3b82f6;
+        }
+
+        /* Loading States */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #e8f2ff;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-weight: 500;
+            font-size: 13px;
+            max-width: 350px;
+            max-height: 48px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            box-sizing: border-box;
+            position: absolute;
+            left: 24px;
+            top: 24px;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+        .message.hide {
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .message.success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #059669;
+        }
+
+        .message.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .message.info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+        }
+
+        #fatTrendChart, #muscleTrendChart {
+            width: 100% !important;
+            height: 90px !important;
+            background: transparent;
+        }
+
+        .thickness-bars-horizontal {
+            display: flex;
+            flex-direction: row;
+            gap: 32px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .thickness-bar-h {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 120px;
+        }
+        .bar-label-h {
+            font-size: 13px;
+            color: #374151;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+        .bar-outer-h {
+            width: 100px;
+            height: 16px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 6px;
+            overflow: hidden;
+        }
+        .bar-inner-h {
+            height: 100%;
+            width: 0;
+            border-radius: 8px;
+            transition: width 1s cubic-bezier(.4,2,.6,1);
+        }
+        .bar-inner-h.fat {
+            background: #22c55e;
+        }
+        .bar-inner-h.muscle {
+            background: #3b82f6;
+        }
+        .bar-value-h {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-top: 2px;
+        }
+
+        /* Form validation and status indicators */
+        .form-input.valid, .form-select.valid {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .form-input.invalid, .form-select.invalid {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .form-group.valid::after {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            opacity: 1;
+        }
+
+        .form-group.invalid::after {
+            content: '✗';
+            color: #ef4444;
+            font-weight: bold;
+            opacity: 1;
+        }
+
+        /* Loading state for save button */
+        .btn-save.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-save.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Card header enhancement */
+        .card-header {
+            background: linear-gradient(135deg, #f8fbff 0%, #e8f2ff 100%);
+            border-bottom: 2px solid #e8f2ff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card-header:hover::before {
+            left: 100%;
+        }
+
+        .card-title {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn, .btn-save, .btn-secondary, .btn-danger, .clear-history-btn {
+            padding: 10px 20px !important;
+            font-size: 14px !important;
+            border-radius: 999px !important;
+            min-width: 120px;
+            min-height: 22px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.10);
+            transition: all 0.2s cubic-bezier(.4,2,.6,1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn:active, .btn-save:active, .btn-secondary:active, .btn-danger:active, .clear-history-btn:active {
+            transform: scale(0.97);
+        }
+        .btn span, .btn-save span, .btn-secondary span, .btn-danger span {
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .btn, .btn-save, .btn-secondary, .btn-danger, .clear-history-btn {
+                min-height: 24px;
+                padding: 8px 0 !important;
+                font-size: 14px !important;
+            }
+        }
+
+        .btn, .btn-save, .btn-secondary, .btn-danger, .clear-history-btn {
+            border: none !important;
+        }
+        .btn:hover, .btn-save:hover, .btn-secondary:hover, .btn-danger:hover, .clear-history-btn:hover {
+            box-shadow: 0 4px 20px 0 rgba(59,130,246,0.15);
+        }
+
+        .btn-file {
+            background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%) !important;
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.10);
+        }
+        .btn-file:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+            color: #fff !important;
+        }
+
+        .message-container {
+            position: fixed;
+            top: 32px;
+            right: 32px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+        .message {
+            position: relative;
+            left: 0;
+            top: 0;
+            margin: 0;
+            pointer-events: auto;
+        }
+
+        .btn-bluetooth {
+            background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%) !important;
+            color: #fff !important;
+            border: none !important;
+        }
+        .btn-bluetooth:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+            color: #fff !important;
+        }
+        .bluetooth-section {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .bluetooth-status {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #888;
+            transition: color 0.3s;
+        }
+        .bluetooth-status.connected { color: #22c55e; }
+        .bluetooth-status.connecting { color: #3b82f6; }
+        .bluetooth-status.error { color: #ef4444; }
+        .bluetooth-status.disconnected { color: #888; }
+        .bluetooth-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+            min-height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="message-container"></div>
+    <div class="main-container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🐕 Basic Information</h3>
+                </div>
+                
+                <!-- User Image Section -->
+                <div class="user-image-section">
+                    <img id="userImage" src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fpngtree.com%2Ffreepng%2Fhappy-dog-sitting-calmly_19783364.html&psig=AOvVaw2aWSqqFn1TSLHmSTnP6XEu&ust=1751089887882000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCMDGo7f0kI4DFQAAAAAdAAAAABAE" alt="User" class="user-image">
+                    <input type="file" id="imageUpload" class="file-upload" accept="image/*" style="display: none;">
+                    <label for="imageUpload" class="btn btn-upload">
+                        <span>📷</span>
+                        <span>Upload Photo</span>
+                    </label>
+                </div>
+
+                <!-- Form Section -->
+                <div class="form-section">
+                    <!-- Basic Info Row -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" id="name" class="form-input" placeholder="Enter dog's name">
+                        </div>
+                    </div>
+
+                    <!-- Physical Measurements Row -->
+                    <div class="form-row two-columns">
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" id="weight" class="form-input" placeholder="0.0" step="0.1" min="0.1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" id="height" class="form-input" placeholder="0.0" step="0.1" min="1" max="200">
+                        </div>
+                    </div>
+
+                    <!-- Breed and Gender Row -->
+                    <div class="form-row two-columns">
+                        <div class="form-group">
+                            <label class="form-label">Breed</label>
+                            <select id="breed" class="form-select">
+                                <option value="">Select breed</option>
+                                <option value="Labrador Retriever">Labrador Retriever</option>
+                                <option value="German Shepherd">German Shepherd</option>
+                                <option value="Golden Retriever">Golden Retriever</option>
+                                <option value="Bulldog">Bulldog</option>
+                                <option value="Beagle">Beagle</option>
+                                <option value="Poodle">Poodle</option>
+                                <option value="Rottweiler">Rottweiler</option>
+                                <option value="Yorkshire Terrier">Yorkshire Terrier</option>
+                                <option value="Boxer">Boxer</option>
+                                <option value="Dachshund">Dachshund</option>
+                                <option value="Shih Tzu">Shih Tzu</option>
+                                <option value="Siberian Husky">Siberian Husky</option>
+                                <option value="Chihuahua">Chihuahua</option>
+                                <option value="Great Dane">Great Dane</option>
+                                <option value="Doberman Pinscher">Doberman Pinscher</option>
+                                <option value="Australian Shepherd">Australian Shepherd</option>
+                                <option value="Miniature Schnauzer">Miniature Schnauzer</option>
+                                <option value="Cavalier King Charles Spaniel">Cavalier King Charles Spaniel</option>
+                                <option value="Shiba Inu">Shiba Inu</option>
+                                <option value="Border Collie">Border Collie</option>
+                                <option value="Mixed">Mixed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select id="gender" class="form-select">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Age Row -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Age (years)</label>
+                            <input type="number" id="age" class="form-input" placeholder="0" min="0" max="20" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="save-section">
+                    <button class="btn btn-save" onclick="saveUserInfo()">
+                        <span>💾</span>
+                        <span>Save User Info</span>
+                    </button>
+                </div>
+                <div class="bluetooth-section">
+                    <button class="btn btn-bluetooth" id="bluetoothBtn" onclick="handleBluetoothBtnClick()">
+                        <span style="font-size:18px;">🟦</span> Bluetooth connection
+                    </button>
+                    <div id="bluetoothStatus" class="bluetooth-status disconnected">Disconnected</div>
+                    <div id="bluetoothInfo" class="bluetooth-info"></div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <!-- Top Row: DogFit Index + Donut, Progress Steps -->
+            <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 20px; margin-bottom: 20px;">
+                <div class="card" style="padding: 24px;">
+                    <div class="composition-cards">
+                        <div class="composition-card dogfit-card">
+                            <h2 class="composition-card-title"><span class="dog-icon">🐕‍🦺</span> DogFit Index</h2>
+                            <div class="chart-container">
+                                <div class="progress-ring" id="dogfit-ring">
+                                    <div class="progress-text" id="dogfit-text">0</div>
+                                    <div class="progress-label no-data" id="dogfit-label">NO DATA</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composition-card fat-card">
+                            <h2 class="composition-card-title">Fat Composition</h2>
+                            <div class="chart-container">
+                                <div class="progress-ring fat" id="fat-ring">
+                                    <div class="progress-text" id="fat-text">0</div>
+                                    <div class="progress-label" id="fat-label">Low Fat</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composition-card muscle-card">
+                            <h2 class="composition-card-title">Muscle Composition</h2>
+                            <div class="chart-container">
+                                <div class="progress-ring muscle" id="muscle-ring">
+                                    <div class="progress-text" id="muscle-text">0</div>
+                                    <div class="progress-label" id="muscle-label">Low Muscle</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Progress Steps</h3>
+                    </div>
+                    <div class="step-indicators" id="stepIndicators">
+                        <div class="step-item">
+                            <div class="step-dot" id="step1">1</div>
+                            <div class="step-label" id="step1Label">Step 1</div>
+                            <div class="step-action" id="step1Action">Input Info</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-dot" id="step2">2</div>
+                            <div class="step-label" id="step2Label">Step 2</div>
+                            <div class="step-action" id="step2Action">Arm Scan</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-dot" id="step3">3</div>
+                            <div class="step-label" id="step3Label">Step 3</div>
+                            <div class="step-action" id="step3Action">Thigh Scan</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-dot" id="step4">4</div>
+                            <div class="step-label" id="step4Label">Step 4</div>
+                            <div class="step-action" id="step4Action">Abdomen Scan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Body Composition History 单独一行 -->
+            
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Body Region Scanning</h3>
+                    <button class="btn btn-danger" style="margin-left: 16px;" onclick="clearFile()">🗑️ Clear File</button>
+                </div>
+                <div class="region-cards">
+                    <div class="region-card" id="region1">
+                        <div class="region-title">🦾 Arm</div>
+                        <div class="region-status" id="region1Status">Pending</div>
+                        <img src="../software picture/arm.gif" alt="Arm">
+                        <button class="btn btn-file" style="width:100%;margin-top:10px;" onclick="loadRegionFile(0)">📁 Load file</button>
+                        <div class="thickness-bars-horizontal">
+                            <div class="thickness-bar-h">
+                                <div class="bar-label-h">Fat</div>
+                                <div class="bar-outer-h">
+                                    <div class="bar-inner-h fat" id="fatBar0" style="width:0"></div>
+                                </div>
+                                <div class="bar-value-h" id="fatBarValue0">-- mm</div>
+                            </div>
+                            <div class="thickness-bar-h">
+                                <div class="bar-label-h">Muscle</div>
+                                <div class="bar-outer-h">
+                                    <div class="bar-inner-h muscle" id="muscleBar0" style="width:0"></div>
+                                </div>
+                                <div class="bar-value-h" id="muscleBarValue0">-- mm</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="region-card" id="region2">
+                        <div class="region-title">🦵 Thigh</div>
+                        <div class="region-status" id="region2Status">Pending</div>
+                        <img src="../software picture/thigh.gif" alt="Thigh">
+                        <button class="btn btn-file" style="width:100%;margin-top:10px;" onclick="loadRegionFile(1)">📁 Load file</button>
+                        <div class="thickness-bars-horizontal">
+                            <div class="thickness-bar-h">
+                                <div class="bar-label-h">Fat</div>
+                                <div class="bar-outer-h">
+                                    <div class="bar-inner-h fat" id="fatBar1" style="width:0"></div>
+                                </div>
+                                <div class="bar-value-h" id="fatBarValue1">-- mm</div>
+                            </div>
+                            <div class="thickness-bar-h">
+                                <div class="bar-label-h">Muscle</div>
+                                <div class="bar-outer-h">
+                                    <div class="bar-inner-h muscle" id="muscleBar1" style="width:0"></div>
+                                </div>
+                                <div class="bar-value-h" id="muscleBarValue1">-- mm</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="region-card" id="region3">
+                        <div class="region-title">🫁 Abdomen</div>
+                        <div class="region-status" id="region3Status">Pending</div>
+                        <img src="../software picture/abomdand.gif" alt="Abdomen">
+                        <button class="btn btn-file" style="width:100%;margin-top:10px;" onclick="loadRegionFile(2)">📁 Load file</button>
+                        <div class="thickness-bars-horizontal">
+                            <div class="thickness-bar-h">
+                                <div class="bar-label-h">Fat</div>
+                                <div class="bar-outer-h">
+                                    <div class="bar-inner-h fat" id="fatBar2" style="width:0"></div>
+                    </div>
+                                <div class="bar-value-h" id="fatBarValue2">-- mm</div>
+                </div>
+                            <div class="thickness-bar-h">
+                                <div class="bar-label-h">Muscle</div>
+                                <div class="bar-outer-h">
+                                    <div class="bar-inner-h muscle" id="muscleBar2" style="width:0"></div>
+            </div>
+                                <div class="bar-value-h" id="muscleBarValue2">-- mm</div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="history-header">
+                        <div class="history-title">📈 Body Composition History</div>
+                        <div style=" gap: 8px; align-items: center;">
+                            <button class="btn btn-secondary" onclick="showAllHistory()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">📊 View All</button>
+                        </div>
+                    </div>
+                    <div class="history-content" id="historyContent">
+                        <div class="chart-section">
+                            <div class="chart-title fat">
+                                <div class="chart-title-icon">📊</div>
+                                <span>Fat Ratio</span>
+                            </div>
+                            <canvas id="fatTrendChart" height="90"></canvas>
+                        </div>
+                        <div class="chart-section">
+                            <div class="chart-title muscle">
+                                <div class="chart-title-icon">💪</div>
+                                <span>Muscle Ratio</span>
+                            </div>
+                            <canvas id="muscleTrendChart" height="90"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JS logic will be added here for region file loading, DogFit index, donut, and history -->
+    <script src="x_scaler.js"></script>
+    <script src="y_scaler.js"></script>
+    <script src="model_output0.js"></script>
+    <script src="model_output1.js"></script>
+    <script src="model_output2.js"></script>
+    <script>
+    // ================= Global Variables =================
+    const regionNames = ["Arm", "Thigh", "Abdomen"];
+    let regionData = [null, null, null]; // Each: {fileContent, peaks, prediction}
+    let completedRegions = 0;
+    let userInfoSaved = false;
+    let currentUser = null;
+    let historyChart = null;
+    let userHistory = {}; // Store history for different users
+    let fatTrendChart = null;
+    let muscleTrendChart = null;
+    let bluetoothDevice = null;
+    let bluetoothServer = null;
+    let bluetoothCharacteristic = null;
+
+    // ================= User Information Management =================
+    function saveUserInfo() {
+        const name = document.getElementById('name').value.trim();
+        const weight = parseFloat(document.getElementById('weight').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const breed = document.getElementById('breed').value;
+        const gender = document.getElementById('gender').value;
+        const age = parseFloat(document.getElementById('age').value);
+
+        if (!name || !weight || !height || !breed || !gender || !age) {
+            showMessage('Please fill in all user information fields', 'error');
+            return;
+        }
+
+        // Check if this user already exists (same name, gender, and breed)
+        const existingUserId = findExistingUser(name, gender, breed);
+        
+        if (existingUserId) {
+            // Load existing user data
+            const existingUserData = JSON.parse(localStorage.getItem('currentUser'));
+            if (existingUserData && existingUserData.id === existingUserId) {
+                // Update existing user with new info
+                currentUser = {
+                    name: name,
+                    weight: weight,
+                    height: height,
+                    breed: breed,
+                    gender: gender,
+                    age: age,
+                    id: existingUserId
+                };
+                showMessage('Existing user found! Loading previous history...', 'success');
+            } else {
+                // Create new user with same name/gender/breed but different age
+                currentUser = {
+                    name: name,
+                    weight: weight,
+                    height: height,
+                    breed: breed,
+                    gender: gender,
+                    age: age,
+                    id: generateUserId(name, breed, age)
+                };
+                showMessage('New user profile created (different age)', 'info');
+            }
+        } else {
+            // Create completely new user
+            currentUser = {
+                name: name,
+                weight: weight,
+                height: height,
+                breed: breed,
+                gender: gender,
+                age: age,
+                id: generateUserId(name, breed, age)
+            };
+            showMessage('New user profile created', 'success');
+        }
+
+        // Save to localStorage
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // Load user history if exists
+        loadUserHistory(currentUser.id);
+        
+        userInfoSaved = true;
+        updateStepAndDogFit();
+        
+        // Enable file loading buttons
+        enableFileLoading();
+    }
+
+    function findExistingUser(name, gender, breed) {
+        // Get all user keys from localStorage
+        const keys = Object.keys(localStorage);
+        const userKeys = keys.filter(key => key.startsWith('currentUser'));
+        
+        for (const key of userKeys) {
+            try {
+                const userData = JSON.parse(localStorage.getItem(key));
+                if (userData && 
+                    userData.name === name && 
+                    userData.gender === gender && 
+                    userData.breed === breed) {
+                    return userData.id;
+                }
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+        return null;
+    }
+
+    function generateUserId(name, breed, age) {
+        return `${name}_${breed}_${age}`.replace(/\s+/g, '_').toLowerCase();
+    }
+
+    function loadUserHistory(userId) {
+        const savedHistory = localStorage.getItem(`userHistory_${userId}`);
+        if (savedHistory) {
+            userHistory[userId] = JSON.parse(savedHistory);
+            updateHistoryChart();
+        } else {
+            userHistory[userId] = [];
+        }
+    }
+
+    function saveUserHistory() {
+        if (currentUser && userHistory[currentUser.id]) {
+            localStorage.setItem(`userHistory_${currentUser.id}`, JSON.stringify(userHistory[currentUser.id]));
+        }
+    }
+
+    // ================= Step Validation =================
+    function enableFileLoading() {
+        if (userInfoSaved) {
+            // Enable all file loading buttons
+            for (let i = 0; i < 3; i++) {
+                const regionCard = document.getElementById(`region${i+1}`);
+                const loadButton = regionCard.querySelector('button');
+                loadButton.disabled = false;
+                loadButton.style.opacity = '1';
+            }
+        }
+    }
+
+    function disableFileLoading() {
+        // Disable all file loading buttons
+        for (let i = 0; i < 3; i++) {
+            const regionCard = document.getElementById(`region${i+1}`);
+            const loadButton = regionCard.querySelector('button');
+            loadButton.disabled = true;
+            loadButton.style.opacity = '0.5';
+        }
+    }
+
+    // ================= Region/Signal Data =================
+    function loadRegionFile(regionIdx) {
+        // 先弹窗显示部位图片，关闭后再继续文件选择
+        showRegionImageModal(regionIdx, function() {
+            // ...原有loadRegionFile内容...
+            if (!userInfoSaved) {
+                showMessage('Please fill in all user information fields and save', 'error');
+                // 自动聚焦到第一个未填写的输入框
+                const requiredFields = ['name', 'weight', 'height', 'breed', 'gender', 'age'];
+                for (const id of requiredFields) {
+                    const el = document.getElementById(id);
+                    if (el && (!el.value || el.value === '')) {
+                        el.focus();
+                        break;
+                    }
+                }
+                return;
+            }
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Show loading state
+                    updateRegionStatus(regionIdx, 'Loading');
+                    showMessage(`Processing ${regionNames[regionIdx]} data...`, 'info');
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const content = evt.target.result;
+                        regionData[regionIdx] = {fileContent: content, peaks: null, prediction: null};
+                        processRegionSignal(content, regionIdx);
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        });
+        // 直接return，等待弹窗关闭后再继续
+        return;
+    }
+
+    // ================= Process Signal, Predict, Update UI =================
+    function processRegionSignal(fileContent, regionIdx) {
+        try {
+            console.log(`Processing region ${regionIdx} (${regionNames[regionIdx]}) signal...`);
+            
+            // 1. Parse and process the signal file
+            const {commonFreqs, S11} = para(fileContent);
+            console.log(`Parsed ${commonFreqs.length} frequency points`);
+            
+            const s11Smooth = savgolFilter(S11, 23, 3);
+            const {minFrequencies, minS11Values} = findS11MinPeaks(commonFreqs, s11Smooth);
+            console.log(`Found ${minFrequencies.length} peaks`);
+            
+            const {selectedFreqs, selectedVals} = extractTopNMinPeaksAfterThreshold(minFrequencies, minS11Values, 2e9, 2);
+            if (!selectedVals || selectedVals.length < 2) {
+                updateRegionStatus(regionIdx, 'Error');
+                showMessage(`Failed to detect peaks in ${regionNames[regionIdx]} data`, 'error');
+                return;
+            }
+            
+            console.log(`Selected peaks: freq1=${selectedFreqs[0]}, freq2=${selectedFreqs[1]}, val1=${selectedVals[0]}, val2=${selectedVals[1]}`);
+            
+            // 2. Predict
+            const features = [selectedVals[0], selectedVals[1], selectedFreqs[0], selectedFreqs[1]];
+            console.log('Features for prediction:', features);
+            
+            const scaledFeatures = x_scaler.transform(features);
+            const fatPrediction = RF_MODEL_0.predict(scaledFeatures);
+            const ratioPrediction = RF_MODEL_1.predict(scaledFeatures);
+            const musclePrediction = RF_MODEL_2.predict(scaledFeatures);
+            
+            console.log('Raw predictions:', {fat: fatPrediction, ratio: ratioPrediction, muscle: musclePrediction});
+            
+            const scaledOutputs = [fatPrediction, ratioPrediction, musclePrediction];
+            const finalResults = y_scaler.inverse_transform(scaledOutputs);
+            
+            console.log('Final results:', finalResults);
+            
+            regionData[regionIdx].peaks = {s11_1: selectedVals[0], s11_2: selectedVals[1], freq_1: selectedFreqs[0], freq_2: selectedFreqs[1]};
+            regionData[regionIdx].prediction = {
+                fat: finalResults[0],
+                muscle: finalResults[2],
+                ratio: finalResults[1]
+            };
+            
+            console.log(`Region ${regionIdx} prediction stored:`, regionData[regionIdx].prediction);
+            
+            updateRegionStatus(regionIdx, 'Completed');
+            showMessage(`${regionNames[regionIdx]} analysis completed successfully!`, 'success');
+            
+            console.log('Calling updateStepAndDogFit...');
+            updateStepAndDogFit();
+            
+            // 新增：显示直方图
+            updateRegionBarChart(regionIdx, finalResults[0], finalResults[2]);
+            
+        } catch (error) {
+            console.error('Error processing region signal:', error);
+            updateRegionStatus(regionIdx, 'Error');
+            showMessage(`Error processing ${regionNames[regionIdx]} data: ${error.message}`, 'error');
+        }
+    }
+
+    // ================= Update Region Status and Step Bar =================
+    function updateRegionStatus(regionIdx, status) {
+        const statusEl = document.getElementById(`region${regionIdx+1}Status`);
+        const regionCard = document.getElementById(`region${regionIdx+1}`);
+        
+        if (status === 'Completed') {
+            statusEl.textContent = '✅ Completed';
+            regionCard.className = 'region-card completed';
+        } else if (status === 'Error') {
+            statusEl.textContent = '❌ Error';
+            regionCard.className = 'region-card error';
+        } else if (status === 'Loading') {
+            statusEl.textContent = '⏳ Loading...';
+            regionCard.className = 'region-card';
+        } else {
+            statusEl.textContent = '⏳ Pending';
+            regionCard.className = 'region-card';
+        }
+    }
+
+    function updateStepAndDogFit() {
+        // Count completed regions
+        completedRegions = regionData.filter(r => r && r.prediction).length;
+        console.log('Completed regions:', completedRegions);
+        
+        // Step bar - only show step 1 as completed initially
+        for (let i = 1; i <= 4; i++) {
+            const dot = document.getElementById(`step${i}`);
+            if (i === 1) {
+                // Step 1 is completed when user info is saved
+                dot.className = userInfoSaved ? 'step-dot completed' : 'step-dot';
+            } else if (i <= completedRegions + 1 && userInfoSaved) {
+                // Steps 2-4 depend on completed regions and user info being saved
+                dot.className = 'step-dot completed';
+            } else {
+                dot.className = 'step-dot';
+            }
+        }
+        
+        // Progress Rings - 只有当所有区域都完成时才更新
+        if (completedRegions === 3) {
+            updateDogFitIndexAndDonut();
+        } else {
+            // 如果区域未完成，显示默认值
+            updateProgressRings(0, 0, 0);
+        }
+        
+        // History - 只有当所有区域都完成时才更新
+        if (completedRegions === 3) {
+            updateHistory();
+        }
+    }
+
+    // ================= DogFit Index & Progress Rings =================
+    window.onload = function() {
+        console.log('Page loaded, initializing progress rings...');
+        disableFileLoading();
+        updateStepAndDogFit();
+        // Initialize progress rings with 0 values
+        updateProgressRings(0, 0, 0);
+
+        // 自动填充用户信息
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                document.getElementById('name').value = user.name || '';
+                document.getElementById('weight').value = user.weight || '';
+                document.getElementById('height').value = user.height || '';
+                document.getElementById('breed').value = user.breed || '';
+                document.getElementById('gender').value = user.gender || '';
+                document.getElementById('age').value = user.age || '';
+                userInfoSaved = true;
+                currentUser = user;
+                loadUserHistory(user.id);
+                updateStepAndDogFit();
+                enableFileLoading();
+            } catch(e) {
+                // ignore
+            }
+        }
+    };
+
+    // 更新三个进度环
+    function updateProgressRings(dogfitScore, fatRatio, muscleRatio) {
+        // 更新 DogFit Index 进度环
+        const dogfitAngle = (dogfitScore / 100) * 360;
+        const dogfitRing = document.getElementById('dogfit-ring');
+        const dogfitText = document.getElementById('dogfit-text');
+        const dogfitLabel = document.getElementById('dogfit-label');
+        
+        if (dogfitScore === 0) {
+            dogfitRing.style.background = 'conic-gradient(#f5f5f5 0deg, #f5f5f5 360deg)';
+            dogfitText.textContent = '0';
+            dogfitLabel.textContent = 'NO DATA';
+            dogfitLabel.className = 'progress-label no-data';
+        } else {
+            let rating, color;
+            if (dogfitScore >= 85) { rating = "EXCELLENT"; color = "#4ade80"; }
+            else if (dogfitScore >= 70) { rating = "GOOD"; color = "#3b82f6"; }
+            else if (dogfitScore >= 50) { rating = "AVERAGE"; color = "#f59e0b"; }
+            else { rating = "NEEDS WORK"; color = "#ef4444"; }
+            
+            dogfitRing.style.background = `conic-gradient(${color} 0deg, ${color} ${dogfitAngle}deg, #f5f7fa ${dogfitAngle}deg, #f5f7fa 360deg)`;
+            dogfitText.textContent = Math.round(dogfitScore);
+            dogfitLabel.textContent = rating;
+            dogfitLabel.className = 'progress-label';
+        }
+
+        // 更新 Fat 进度环
+        const fatAngle = fatRatio * 360;
+        const fatRing = document.getElementById('fat-ring');
+        const fatText = document.getElementById('fat-text');
+        const fatLabel = document.getElementById('fat-label');
+        
+        fatRing.style.background = `conic-gradient(#66bb6a 0deg, #66bb6a ${fatAngle}deg, #f5f7fa ${fatAngle}deg, #f5f7fa 360deg)`;
+        fatText.textContent = Math.round(fatRatio * 100);
+        fatLabel.textContent = fatRatio >= 0.2 ? 'Normal Fat' : 'Low Fat';
+        fatLabel.className = `progress-label ${fatRatio >= 0.2 ? 'normal' : 'low'}`;
+
+        // 更新 Muscle 进度环
+        const muscleAngle = muscleRatio * 360;
+        const muscleRing = document.getElementById('muscle-ring');
+        const muscleText = document.getElementById('muscle-text');
+        const muscleLabel = document.getElementById('muscle-label');
+        
+        muscleRing.style.background = `conic-gradient(#42a5f5 0deg, #42a5f5 ${muscleAngle}deg, #f5f7fa ${muscleAngle}deg, #f5f7fa 360deg)`;
+        muscleText.textContent = Math.round(muscleRatio * 100);
+        muscleLabel.textContent = muscleRatio >= 0.3 ? 'Normal Muscle' : 'Low Muscle';
+        muscleLabel.className = `progress-label ${muscleRatio >= 0.3 ? 'normal' : 'low'}`;
+    }
+
+    // 修改updateDogFitIndexAndDonut调用
+    function updateDogFitIndexAndDonut() {
+        console.log('Updating DogFit index and progress rings...');
+        const fatArr = regionData.map(r => r && r.prediction ? r.prediction.fat : null).filter(v => v !== null);
+        const muscleArr = regionData.map(r => r && r.prediction ? r.prediction.muscle : null).filter(v => v !== null);
+        let fatRatio = 0, muscleRatio = 0;
+        
+        // 只有当所有区域都完成时才计算整体比例
+        if (fatArr.length === 3 && muscleArr.length === 3) {
+            const avgFat = fatArr.reduce((a,b)=>a+b,0)/fatArr.length;
+            const avgMuscle = muscleArr.reduce((a,b)=>a+b,0)/muscleArr.length;
+            const total = avgFat + avgMuscle;
+            fatRatio = total > 0 ? avgFat/total : 0;
+            muscleRatio = 1 - fatRatio;
+        }
+        
+        const score = fatArr.length === 3 && muscleArr.length === 3 ? calculateDogFitIndex(fatRatio, muscleRatio) : 0;
+        updateProgressRings(score, fatRatio, muscleRatio);
+    }
+
+    // ================= History Management =================
+    function updateHistory() {
+        console.log('Updating history...');
+        console.log('Region data:', regionData);
+        
+        const fatArr = regionData.map(r => r && r.prediction ? r.prediction.fat : null).filter(v => v !== null);
+        const muscleArr = regionData.map(r => r && r.prediction ? r.prediction.muscle : null).filter(v => v !== null);
+        
+        console.log('Fat array:', fatArr);
+        console.log('Muscle array:', muscleArr);
+        
+        let fatRatio = 0, muscleRatio = 0;
+        if (fatArr.length && muscleArr.length) {
+            const avgFat = fatArr.reduce((a,b)=>a+b,0)/fatArr.length;
+            const avgMuscle = muscleArr.reduce((a,b)=>a+b,0)/muscleArr.length;
+            const total = avgFat + avgMuscle;
+            fatRatio = total > 0 ? avgFat/total : 0;
+            muscleRatio = 1 - fatRatio;
+            
+            console.log('Average fat:', avgFat, 'Average muscle:', avgMuscle);
+            console.log('Total:', total);
+            console.log('Fat ratio:', fatRatio, 'Muscle ratio:', muscleRatio);
+            
+            // 只有当所有区域都完成时才记录历史
+            if (currentUser && fatRatio > 0 && completedRegions === 3) {
+                addToHistory(fatRatio, muscleRatio);
+            }
+        }
+        
+        updateHistoryChart();
+    }
+
+    function addToHistory(fatRatio, muscleRatio) {
+        if (!currentUser) return;
+        
+        const timestamp = new Date().toLocaleString();
+        const historyEntry = {
+            timestamp: timestamp,
+            fatRatio: fatRatio * 100,
+            muscleRatio: muscleRatio * 100,
+            date: new Date()
+        };
+        
+        if (!userHistory[currentUser.id]) {
+            userHistory[currentUser.id] = [];
+        }
+        
+        userHistory[currentUser.id].push(historyEntry);
+        
+        // Keep only last 20 entries for storage
+        if (userHistory[currentUser.id].length > 20) {
+            userHistory[currentUser.id] = userHistory[currentUser.id].slice(-20);
+        }
+        
+        saveUserHistory();
+    }
+
+    // 更新历史趋势图
+    function updateHistoryChart() {
+    if (!currentUser || !userHistory[currentUser.id]) return;
+
+    const history = userHistory[currentUser.id];
+    const n = history.length;
+
+    // 设置固定的显示数据点数量
+    const displayCount = 7; // 这里设置为7个数据点，可以调整
+    const startIndex = Math.max(0, n - displayCount);
+
+    // 准备显示数据
+    const fatData = [null, ...Array(displayCount).fill(null), null];
+    const muscleData = [null, ...Array(displayCount).fill(null), null];
+    const dateLabels = ['', ...Array(displayCount).fill(''), ''];
+
+    for (let i = 0; i < displayCount && i + startIndex < n; i++) {
+        fatData[i + 1] = history[i + startIndex].fatRatio / 100;
+        muscleData[i + 1] = history[i + startIndex].muscleRatio / 100;
+        dateLabels[i + 1] = (history[i + startIndex].timestamp || '').split(' ')[0].slice(5); // MM-DD
+    }
+
+    // Fat Ratio Chart
+    if (!fatTrendChart) {
+        fatTrendChart = new Chart(document.getElementById('fatTrendChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dateLabels,
+                datasets: [{
+                    data: fatData,
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0,0,0,0.08)',
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#000000',
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    pointBorderWidth: 3,
+                    fill: false,
+                    tension: 0.1,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 500,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.parsed.y !== null ? (ctx.parsed.y * 100).toFixed(1) + '%' : ''
+                        }
+                    },
+                    datalabels: {
+                        display: ctx => ctx.dataset.data[ctx.dataIndex] !== null,
+                        color: '#000000',
+                        font: { weight: 'bold', size: 14 },
+                        align: 'top',
+                        anchor: 'end',
+                        formatter: v => v !== null ? (v * 100).toFixed(1) + '%' : ''
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 11 },
+                            autoSkip: false,
+                            maxRotation: 0,
+                            callback: function(val, idx) { return dateLabels[idx] || ''; },
+                            align: 'center',
+                            offset: true, // 让点居中
+                            min: 0,
+                            max: displayCount + 1,
+                        }
+                    },
+                    y: {
+                        min: 0.15,
+                        max: 0.5,
+                        grid: { display: false },
+                        ticks: { 
+                            display: false,
+                            callback: function(value) {
+                                return (value * 100).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    line: { borderWidth: 3 },
+                    point: { radius: 5, borderWidth: 3 }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    } else {
+        // 更新数据时保持之前数据固定，只追加新数据
+        fatTrendChart.data.labels = dateLabels;
+        fatTrendChart.data.datasets[0].data = fatData;
+        fatTrendChart.options.scales.x.max = displayCount - 0.8;
+        fatTrendChart.update('active');
+    }
+
+    // Muscle Ratio Chart
+    if (!muscleTrendChart) {
+        muscleTrendChart = new Chart(document.getElementById('muscleTrendChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dateLabels,
+                datasets: [{
+                    data: muscleData,
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(0,0,0,0.08)',
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#000000',
+                    pointRadius: 4,
+                    pointHoverRadius: 5,
+                    pointBorderWidth: 3,
+                    fill: false,
+                    tension: 0.3,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 500,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.parsed.y !== null ? (ctx.parsed.y * 100).toFixed(1) + '%' : ''
+                        }
+                    },
+                    datalabels: {
+                        display: ctx => ctx.dataset.data[ctx.dataIndex] !== null,
+                        color: '#000000',
+                        font: { weight: 'bold', size: 14 },
+                        align: 'top',
+                        anchor: 'end',
+                        formatter: v => v !== null ? (v * 100).toFixed(1) + '%' : ''
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            color: '#888',
+                            font: { size: 11 },
+                            autoSkip: false,
+                            maxRotation: 0,
+                            callback: function(val, idx) { return dateLabels[idx] || ''; },
+                            align: 'center',
+                            offset: true, // 让点居中
+                            min: 0,
+                            max: displayCount + 1,
+                        }
+                    },
+                    y: {
+                        min: 0.5,
+                        max: 0.85,
+                        grid: { display: false },
+                        ticks: { 
+                            display: false,
+                            callback: function(value) {
+                                return (value * 100).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                },
+                elements: {
+                    line: { borderWidth: 3 },
+                    point: { radius: 8, borderWidth: 3 }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    } else {
+        // 更新数据时保持之前数据固定，只追加新数据
+        muscleTrendChart.data.labels = dateLabels;
+        muscleTrendChart.data.datasets[0].data = muscleData;
+        muscleTrendChart.options.scales.x.max = displayCount - 0.8;
+        muscleTrendChart.update('active');
+    }
+}
+
+    function showAllHistory() {
+        if (!currentUser || !userHistory[currentUser.id]) {
+            showMessage('No history data available', 'info');
+            return;
+        }
+
+        const history = userHistory[currentUser.id];
+        if (history.length === 0) {
+            showMessage('No history data available', 'info');
+            return;
+        }
+
+        // Create modal for all history
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        `;
+
+        let tableHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #1e3a8a; margin: 0;">📊 Complete History for ${currentUser.name}</h3>
+                <button onclick="this.closest('.modal').remove()" style="
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 16px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">✕ Close</button>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead>
+                    <tr style="background: #f8fbff; border-bottom: 2px solid #e8f2ff;">
+                        <th style="padding: 12px; text-align: left; color: #1e3a8a; font-weight: 700;">Date & Time</th>
+                        <th style="padding: 12px; text-align: center; color: #1e3a8a; font-weight: 700;">Fat Ratio</th>
+                        <th style="padding: 12px; text-align: center; color: #1e3a8a; font-weight: 700;">Muscle Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        // Sort history by date (newest first)
+        const sortedHistory = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        sortedHistory.forEach((entry, index) => {
+            const rowColor = index % 2 === 0 ? '#ffffff' : '#f8fbff';
+            tableHTML += `
+                <tr style="background: ${rowColor}; border-bottom: 1px solid #e8f2ff;">
+                    <td style="padding: 12px; color: #374151;">${entry.timestamp}</td>
+                    <td style="padding: 12px; text-align: center; color: #1e40af; font-weight: 600;">${entry.fatRatio.toFixed(2)}%</td>
+                    <td style="padding: 12px; text-align: center; color: #059669; font-weight: 600;">${entry.muscleRatio.toFixed(2)}%</td>
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+                </tbody>
+            </table>
+            <div style="margin-top: 16px; text-align: center; color: #6b7280; font-size: 12px;">
+                Total records: ${history.length}
+            </div>
+        `;
+
+        modalContent.innerHTML = tableHTML;
+        modal.appendChild(modalContent);
+        modal.className = 'modal';
+        document.body.appendChild(modal);
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function clearHistory() {
+        if (confirm('Are you sure you want to clear all history and reset the analysis?')) {
+            regionData = [null, null, null];
+            completedRegions = 0;
+            userInfoSaved = false;
+            currentUser = null;
+            
+            // Clear current user history
+            if (currentUser && userHistory[currentUser.id]) {
+                userHistory[currentUser.id] = [];
+                saveUserHistory();
+            }
+            
+            for (let i = 0; i < 3; i++) updateRegionStatus(i, 'Pending');
+            disableFileLoading();
+        updateStepAndDogFit();
+            updateHistoryChart();
+            showMessage('History cleared successfully', 'success');
+        }
+    }
+
+    // ================= DogFit Index Calculation =================
+    function calculateDogFitIndex(fatRatio, muscleRatio) {
+        try {
+            const weight = parseFloat(document.getElementById('weight').value) || 20;
+            const breed = document.getElementById('breed').value || "Mixed";
+            const age = parseFloat(document.getElementById('age').value) || 5;
+            // Ideal parameters
+            const idealFatRange = [0.15, 0.25];
+            const breedWeightDB = {
+                "Labrador Retriever": [25, 36], "German Shepherd": [22, 40], "Golden Retriever": [25, 34], "Bulldog": [18, 25], "Beagle": [9, 11], "Poodle": [7, 15], "Rottweiler": [36, 61], "Yorkshire Terrier": [2, 3], "Boxer": [25, 32], "Dachshund": [7, 15], "Shih Tzu": [4, 7], "Siberian Husky": [16, 27], "Chihuahua": [1, 3], "Great Dane": [45, 90], "Doberman Pinscher": [30, 45], "Australian Shepherd": [16, 32], "Miniature Schnauzer": [5, 9], "Cavalier King Charles Spaniel": [5, 8], "Shiba Inu": [8, 10], "Border Collie": [14, 20], "Mixed": [10, 30]
+            };
+            const breedWeightRange = breedWeightDB[breed] || [10, 30];
+            let fatScore = Math.max(0, 100 - Math.abs(fatRatio - (idealFatRange[0] + idealFatRange[1]) / 2) * 200);
+            fatScore = Math.min(fatScore, 100);
+            let muscleScore = Math.max(0, (muscleRatio - 0.5) * 200);
+            muscleScore = Math.min(muscleScore, 100);
+            const idealWeight = (breedWeightRange[0] + breedWeightRange[1]) / 2;
+            let weightScore = Math.max(0, 100 - Math.abs(weight - idealWeight) * 5);
+            weightScore = Math.min(weightScore, 100);
+            let ageScore = Math.max(0, 100 - (age * 2));
+            ageScore = Math.min(ageScore, 100);
+            const totalScore = (
+                fatScore * 0.4 +
+                muscleScore * 0.3 +
+                weightScore * 0.2 +
+                ageScore * 0.1
+            );
+            updateScoreGauge(totalScore);
+            return Math.round(totalScore * 10) / 10;
+        } catch (e) {
+            return 50.0;
+        }
+    }
+
+    function updateScoreGauge(score) {
+        const scoreCircle = document.getElementById('scoreCircle');
+        const scoreValue = document.getElementById('scoreValue');
+        const scoreRating = document.getElementById('scoreRating');
+        if (score === null || score === 0) {
+            scoreCircle.style.background = 'conic-gradient(#f5f5f5 0deg, #f5f5f5 360deg)';
+            scoreValue.textContent = '0';
+            scoreRating.textContent = 'NO DATA';
+            scoreRating.style.color = '#666666';
+        } else {
+            let rating, color;
+            if (score >= 85) { rating = "EXCELLENT"; color = "#4ade80"; }
+            else if (score >= 70) { rating = "GOOD"; color = "#3b82f6"; }
+            else if (score >= 50) { rating = "AVERAGE"; color = "#f59e0b"; }
+            else { rating = "NEEDS WORK"; color = "#ef4444"; }
+            const angle = (score / 100) * 360;
+            scoreCircle.style.background = `conic-gradient(${color} 0deg, ${color} ${angle}deg, #f5f5f5 ${angle}deg, #f5f5f5 360deg)`;
+            scoreValue.textContent = Math.round(score);
+            scoreRating.textContent = rating;
+            scoreRating.style.color = color;
+        }
+    }
+
+    // ================= Signal Processing/Peak Detection =================
+    function savgolFilter(array, windowSize, polyOrder) {
+        const halfWindow = Math.floor(windowSize / 2);
+        const filtered = new Array(array.length);
+        for (let i = 0; i < array.length; i++) {
+            let sum = 0, count = 0;
+            for (let j = Math.max(0, i - halfWindow); j < Math.min(array.length, i + halfWindow + 1); j++) {
+                sum += array[j]; count++;
+            }
+            filtered[i] = sum / count;
+        }
+        return filtered;
+    }
+
+    function para(fileContent) {
+        const frequencies = [], RI = [], R = [];
+        const lines = fileContent.split('\n');
+        for (const line of lines) {
+            const values = line.trim().split(/\s+/);
+            if (values.length === 3) {
+                const [x, y, z] = values.map(Number);
+                if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+                    frequencies.push(x); RI.push(y); R.push(z);
+                }
+            }
+        }
+        const mask = frequencies.map((f, i) => ({ f, i })).filter(item => item.f < 4.4e9);
+        const commonFreqs = mask.map(item => item.f);
+        const filteredRI = mask.map(item => RI[item.i]);
+        const filteredR = mask.map(item => R[item.i]);
+        const fs = 2 * Math.max(...commonFreqs);
+        const filteredRI_smooth = lowpassFilter(filteredRI, fs);
+        const filteredR_smooth = lowpassFilter(filteredR, fs);
+        const complexRI = filteredRI_smooth.map((re, i) => ({ re, im: filteredR_smooth[i] }));
+        const reflectionMagnitude = complexRI.map(c => Math.sqrt(c.re * c.re + c.im * c.im));
+        const S11 = reflectionMagnitude.map(mag => {
+            const value = 20 * Math.log10(Math.abs(mag));
+            return isFinite(value) ? value : 0;
+        });
+        return { commonFreqs, S11, complexRI };
+    }
+
+    function lowpassFilter(data, fs, cutoff = 1e9, order = 5) {
+        const windowSize = Math.floor(data.length / 20);
+        const filtered = new Array(data.length).fill(0);
+        for (let i = 0; i < data.length; i++) {
+            let sum = 0, count = 0;
+            for (let j = Math.max(0, i - windowSize); j < Math.min(data.length, i + windowSize + 1); j++) {
+                sum += data[j]; count++;
+            }
+            filtered[i] = sum / count;
+        }
+        return filtered;
+    }
+
+    function findS11MinPeaks(freqs, s11Values, thresholdDb = -5) {
+        const freqRange = [2e9, 4.4e9];
+        const invertedS11 = s11Values.map(s => -s);
+        const peaks = [];
+        for (let i = 1; i < invertedS11.length - 1; i++) {
+            if (invertedS11[i] > invertedS11[i-1] && invertedS11[i] > invertedS11[i+1] && invertedS11[i] > -thresholdDb) {
+                peaks.push(i);
+            }
+        }
+        const minFrequencies = peaks.map(i => freqs[i]);
+        const minS11Values = peaks.map(i => s11Values[i]);
+        const mask = minFrequencies.map((f, i) => ({ f, i })).filter(item => item.f >= freqRange[0] && item.f <= freqRange[1]);
+        return {
+            minFrequencies: mask.map(item => minFrequencies[item.i]),
+            minS11Values: mask.map(item => minS11Values[item.i])
+        };
+    }
+
+    function extractTopNMinPeaksAfterThreshold(peakFreqs, peakVals, threshold = 2.7e9, topN = 2, minFreqDiff = 100e6) {
+        const selected = peakFreqs.map((freq, i) => ({ freq, val: peakVals[i] })).filter(item => item.freq >= threshold);
+        if (selected.length < topN) return { selectedFreqs: null, selectedVals: null };
+        selected.sort((a, b) => a.val - b.val);
+        let result = selected.slice(0, topN);
+        if (Math.abs(result[0].freq - result[1].freq) < minFreqDiff) {
+            for (const candidate of selected.slice(topN)) {
+                if (Math.abs(result[0].freq - candidate.freq) >= minFreqDiff) {
+                    result[1] = candidate; break;
+                }
+            }
+        }
+        return {
+            selectedFreqs: result.map(item => item.freq),
+            selectedVals: result.map(item => item.val)
+        };
+    }
+
+    // ================= Message Display =================
+    function showMessage(message, type = 'info') {
+        // Create message element
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${type}`;
+        messageEl.textContent = message;
+        
+        // Add to message container
+        const container = document.querySelector('.message-container');
+        container.appendChild(messageEl);
+        
+        // Remove after 2.5 seconds with fade-out
+        setTimeout(() => {
+            messageEl.classList.add('hide');
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.parentNode.removeChild(messageEl);
+                }
+            }, 500);
+        }, 2500);
+    }
+
+    // ================= User Image Upload =================
+    document.getElementById('imageUpload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('userImage').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // ================= Test Function for Debugging =================
+    function testDataFlow() {
+        console.log('Testing data flow with 0 values...');
+        
+        // Reset to 0 values
+        regionData = [null, null, null];
+        completedRegions = 0;
+        userInfoSaved = false;
+        currentUser = null;
+        
+        // Update UI to show 0 values
+        for (let i = 0; i < 3; i++) {
+            updateRegionStatus(i, 'Pending');
+        }
+        
+        disableFileLoading();
+        updateStepAndDogFit();
+        console.log('Test data flow completed - showing 0 values');
+    }
+    
+    // Add test button to page
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            const testBtn = document.createElement('button');
+            testBtn.textContent = '🔄 Reset to 0';
+            testBtn.className = 'btn btn-secondary';
+            testBtn.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 1000; font-size: 12px; padding: 8px 12px;';
+            testBtn.onclick = testDataFlow;
+            document.body.appendChild(testBtn);
+        }, 1000);
+    });
+
+    // ================= 区域直方图显示 =================
+    const regionBarCharts = [null, null, null];
+    function updateRegionBarChart(regionIdx, fat, muscle) {
+        // 最大厚度假设为50mm
+        const maxVal = 50;
+        // 处理异常或error
+        let fatVal = (typeof fat === 'number' && isFinite(fat) && fat >= 0) ? fat : 0;
+        let muscleVal = (typeof muscle === 'number' && isFinite(muscle) && muscle >= 0) ? muscle : 0;
+        let fatText = (typeof fat === 'number' && isFinite(fat) && fat >= 0) ? fat.toFixed(1) + ' mm' : '-- mm';
+        let muscleText = (typeof muscle === 'number' && isFinite(muscle) && muscle >= 0) ? muscle.toFixed(1) + ' mm' : '-- mm';
+        // 百分比宽度
+        const fatPercent = Math.min(fatVal / maxVal, 1) * 100;
+        const musclePercent = Math.min(muscleVal / maxVal, 1) * 100;
+        // 横向bar
+        document.getElementById(`fatBar${regionIdx}`).style.width = fatPercent + '%';
+        document.getElementById(`fatBarValue${regionIdx}`).textContent = fatText;
+        document.getElementById(`muscleBar${regionIdx}`).style.width = musclePercent + '%';
+        document.getElementById(`muscleBarValue${regionIdx}`).textContent = muscleText;
+    }
+
+    function clearFile() {
+        regionData = [null, null, null];
+        completedRegions = 0;
+        for (let i = 0; i < 3; i++) updateRegionStatus(i, 'Pending');
+        disableFileLoading();
+        updateStepAndDogFit();
+        showMessage('Region files cleared successfully', 'success');
+    }
+
+    
+    async function connectBluetooth() {
+        try {
+            if (!navigator.bluetooth) throw new Error('Web Bluetooth API is not supported in this browser');
+            if (!await navigator.bluetooth.getAvailability()) throw new Error('Bluetooth is not available on this device');
+            updateBluetoothStatus('Connecting...', 'connecting');
+            updateBluetoothInfo('Requesting Bluetooth device...');
+            bluetoothDevice = await navigator.bluetooth.requestDevice({
+                acceptAllDevices: true,
+                optionalServices: ['generic_access', 'generic_attribute']
+            });
+            updateBluetoothInfo('Connecting to device...');
+            bluetoothServer = await bluetoothDevice.gatt.connect();
+            updateBluetoothInfo('Connected to GATT server');
+            bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+            updateBluetoothStatus('Connected', 'connected');
+            updateBluetoothInfo(`Connected to: ${bluetoothDevice.name || 'Unknown Device'}`);
+            document.getElementById('bluetoothBtn').textContent = 'Disconnect';
+        } catch (error) {
+            console.error('Bluetooth connection error:', error);
+            updateBluetoothStatus('Error', 'error');
+            updateBluetoothInfo(`Connection failed: ${error.message}`);
+            bluetoothDevice = null;
+            bluetoothServer = null;
+        }
+    }
+
+    function disconnectBluetooth() {
+        if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+            bluetoothDevice.gatt.disconnect();
+        }
+        onDisconnected();
+    }
+
+    function onDisconnected() {
+        bluetoothDevice = null;
+        bluetoothServer = null;
+        bluetoothCharacteristic = null;
+        updateBluetoothStatus('Disconnected', 'disconnected');
+        updateBluetoothInfo('Device disconnected');
+        document.getElementById('bluetoothBtn').textContent = 'Bluetooth connection';
+    }
+
+    function updateBluetoothStatus(status, type) {
+        const statusElement = document.getElementById('bluetoothStatus');
+        statusElement.textContent = status;
+        statusElement.className = 'bluetooth-status';
+        switch (type) {
+            case 'connected': statusElement.classList.add('connected'); break;
+            case 'connecting': statusElement.classList.add('connecting'); break;
+            case 'error': statusElement.classList.add('error'); break;
+            default: statusElement.classList.add('disconnected'); break;
+        }
+    }
+
+    function updateBluetoothInfo(info) {
+        document.getElementById('bluetoothInfo').textContent = info;
+    }
+
+    function handleBluetoothBtnClick() {
+        if (bluetoothDevice && bluetoothDevice.gatt && bluetoothDevice.gatt.connected) {
+            disconnectBluetooth();
+        } else {
+            connectBluetooth();
+        }
+    }
+
+    // 页面加载时自动检测蓝牙可用性
+    window.addEventListener('DOMContentLoaded', function() {
+        if (navigator.bluetooth) {
+            navigator.bluetooth.getAvailability().then(available => {
+                if (!available) {
+                    updateBluetoothStatus('Not Available', 'error');
+                    updateBluetoothInfo('Bluetooth is not available on this device');
+                    document.getElementById('bluetoothBtn').disabled = true;
+                }
+            });
+        } else {
+            updateBluetoothStatus('Not Supported', 'error');
+            updateBluetoothInfo('Web Bluetooth API is not supported in this browser');
+            document.getElementById('bluetoothBtn').disabled = true;
+        }
+    });
+
+    // ================= 放大显示部位图片弹窗 =================
+    function showRegionImageModal(regionIdx, onClose) {
+        const regionImages = [
+            { title: "Arm", src: "../software picture/arm.gif" },
+            { title: "Thigh", src: "../software picture/thigh.gif" },
+            { title: "Abdomen", src: "../software picture/abomdand.gif" }
+        ];
+        const region = regionImages[regionIdx];
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 99999; display: flex; align-items: center; justify-content: center;
+        `;
+        modal.onclick = function(e) { if (e.target === modal) { modal.remove(); if (onClose) onClose(); } };
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: #fff; border-radius: 16px; padding: 32px 32px 24px 32px; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            display: flex; flex-direction: column; align-items: center; max-width: 90vw; max-height: 90vh;
+        `;
+        const title = document.createElement('div');
+        title.textContent = `Please detect the area: ${region.title}`;
+        title.style.cssText = "font-size: 22px; font-weight: bold; color: #1e3a8a; margin-bottom: 18px;";
+        const img = document.createElement('img');
+        img.src = region.src;
+        img.alt = region.title;
+        img.style.cssText = "max-width: 720px; max-height: 240vh; border-radius: 12px; box-shadow: 0 4px 24px rgba(59,130,246,0.10);";
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = "Load";
+        closeBtn.className = "btn btn-secondary";
+        closeBtn.style.marginTop = "24px";
+        closeBtn.onclick = function() { modal.remove(); if (onClose) onClose(); };
+        content.appendChild(title);
+        content.appendChild(img);
+        content.appendChild(closeBtn);
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+    }
+    </script>
+</body>
+</html> 

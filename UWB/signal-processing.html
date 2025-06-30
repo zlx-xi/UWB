@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UWB Tissue Thickness Prediction - Signal Processing</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/numeric@1.2.6/numeric.min.js"></script>
+    <script src="x_scaler.js"></script>
+    <script src="y_scaler.js"></script>
+    <script src="model_output0.js"></script>
+    <script src="model_output1.js"></script>
+    <script src="model_output2.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #2c3e50;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .left-panel {
+            flex: 1;
+            max-width: 380px;
+        }
+
+        .right-panel {
+            flex: 3;
+        }
+
+        .card {
+            background: #f8fbff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(32, 86, 168, 0.08);
+            margin-bottom: 24px;
+            overflow: hidden;
+            border: 1px solid #e8f2ff;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(32, 86, 168, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e8f2ff;
+            background: linear-gradient(135deg, #f8fbff 0%, #e8f2ff 100%);
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1e3a8a;
+            letter-spacing: -0.5px;
+        }
+
+        .card-content {
+            padding: 24px;
+        }
+
+        .user-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 20px;
+            display: block;
+            border: 4px solid #3b82f6;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            background: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: #374151;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+        }
+
+        .part-selection {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e8f2ff;
+        }
+
+        .part-select {
+            min-width: 180px;
+        }
+
+        .info-text {
+            color: #6b7280;
+            font-style: italic;
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .thickness-container {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .thickness-bar {
+            flex: 1;
+            height: 140px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            border: 1px solid #e8f2ff;
+        }
+
+        .thickness-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .thickness-label {
+            width: 90px;
+            font-weight: 700;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        .thickness-progress {
+            flex: 1;
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .thickness-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .thickness-fill.fat {
+            background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
+        }
+
+        .thickness-fill.muscle {
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+        }
+
+        .thickness-fill.ratio {
+            background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+        }
+
+        .thickness-value {
+            min-width: 80px;
+            font-weight: 700;
+            text-align: right;
+            color: #1f2937;
+            font-size: 16px;
+        }
+
+        /* 新的厚度卡片网格样式 */
+        .thickness-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .thickness-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .thickness-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .fat-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-color: #0ea5e9;
+        }
+
+        .fat-card:hover {
+            border-color: #0284c7;
+        }
+
+        .muscle-card {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #f59e0b;
+        }
+
+        .muscle-card:hover {
+            border-color: #d97706;
+        }
+
+        .ratio-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: #10b981;
+        }
+
+        .ratio-card:hover {
+            border-color: #059669;
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .card-content-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-subtitle {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .value-display {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .main-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1f2937;
+            line-height: 1;
+        }
+
+        .unit {
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.8s ease;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .fat-fill {
+            background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
+        }
+
+        .muscle-fill {
+            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+        }
+
+        .ratio-fill {
+            background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 成分比例显示样式 */
+        .composition-display {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 8px 0;
+        }
+
+        .composition-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .composition-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .composition-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .composition-item:first-child .composition-value {
+            color: #1e40af;
+        }
+
+        .composition-item:last-child .composition-value {
+            color: #f59e0b;
+        }
+
+        /* 卡片状态指示器 */
+        .status-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #6b7280;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator.healthy {
+            background: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-indicator.warning {
+            background: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+        }
+
+        .status-indicator.danger {
+            background: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+        }
+
+        /* 数值变化动画 */
+        .value-change {
+            animation: valuePulse 0.6s ease-in-out;
+        }
+
+        @keyframes valuePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 卡片悬停时的额外效果 */
+        .thickness-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .thickness-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .donut-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            margin: 24px 0;
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+
+        .donut-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .donut-percentage {
+            font-size: 22px;
+            display: block;
+            color: #1e40af;
+        }
+
+        .donut-name {
+            font-size: 14px;
+            display: block;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .advice-content {
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            line-height: 1.8;
+            border: 1px solid #e8f2ff;
+        }
+
+        .advice-content h4 {
+            color: #1e40af;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .advice-content ul {
+            margin-left: 20px;
+        }
+
+        .advice-content li {
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .file-upload {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .upload-btn:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .error-message {
+            color: #dc2626;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+
+        .success-message {
+            color: #059669;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .spinner {
+            border: 4px solid #e8f2ff;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: #ffffff;
+            margin: 8% auto;
+            padding: 32px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            border: 1px solid #e8f2ff;
+        }
+
+        .part-image {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .bluetooth-status {
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .bluetooth-status.connected {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .bluetooth-status.connecting {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+
+        .bluetooth-status.error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        .bluetooth-status.disconnected {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        /* 蓝牙连接区域样式 */
+        .bluetooth-section {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid #e8f2ff;
+        }
+
+        .bluetooth-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .bluetooth-title {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        /* 信号图表容器样式 */
+        #signalPlot {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f2ff;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(32, 86, 168, 0.08);
+        }
+
+        /* 信号信息区域样式 */
+        #signalInfo {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e8f2ff;
+            margin-top: 20px;
+        }
+
+        .peak-info {
+            background: #f8fbff;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .peak-info span {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                max-width: 100%;
+            }
+            
+            .donut-container {
+                gap: 20px;
+            }
+            
+            .donut-chart {
+                width: 140px;
+                height: 140px;
+            }
+
+            .thickness-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            
+            .card-content {
+                padding: 16px;
+            }
+            
+            .part-selection {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .thickness-container {
+                flex-direction: column;
+            }
+            
+            .donut-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .thickness-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .thickness-card {
+                padding: 20px;
+            }
+
+            .main-value {
+                font-size: 28px;
+            }
+
+            .card-subtitle {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .thickness-card {
+                padding: 16px;
+            }
+
+            .main-value {
+                font-size: 24px;
+            }
+
+            .card-icon {
+                font-size: 28px;
+            }
+
+            .card-subtitle {
+                font-size: 15px;
+            }
+
+            .card-description {
+                font-size: 13px;
+            }
+
+            .composition-display {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .composition-item {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .composition-value {
+                font-size: 16px;
+            }
+        }
+
+        /* 额外的视觉效果增强 */
+        .form-input:hover, .form-select:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .card-header:hover {
+            background: linear-gradient(135deg, #f1f5ff 0%, #dbeafe 100%);
+        }
+
+        .thickness-progress:hover {
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .donut-chart:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        /* 加载动画增强 */
+        .loading p {
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        /* 滚动条样式 */
+        .advice-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .advice-content::-webkit-scrollbar-track {
+            background: #f1f5ff;
+            border-radius: 4px;
+        }
+
+        .advice-content::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+
+        .advice-content::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+
+        /* 焦点状态增强 */
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 左侧面板 -->
+    <div class="container">
+        
+        <div class="left-panel">
+            <div class="card">
+                <div class="card-content">
+                    <img id="userImage" src="../software picture/happy .jpg" alt="User" class="user-image">
+                    <input type="file" id="imageUpload" class="file-upload" accept="image/*">
+                    <label for="imageUpload" class="upload-btn">Upload Photo</label>
+                    
+                    <h3 class="card-title" style="margin-top: 20px;">Basic Information</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Name</label>
+                        <input type="text" id="name" class="form-input" placeholder="Enter name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" id="weight" class="form-input" placeholder="Enter weight" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" id="height" class="form-input" placeholder="Enter height" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select id="gender" class="form-select">
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Age (years)</label>
+                        <input type="number" id="age" class="form-input" placeholder="Enter age" min="0" max="100">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧面板 -->
+        <div class="right-panel">
+            <!-- Part Selection -->
+            <div class="card">
+                <div class="card-content">
+                    <div class="part-selection">
+                        <label class="form-label">Select Part:</label>
+                        <select id="partSelect" class="form-select part-select">
+                            <option value="">Please select</option>
+                            <option value="Arm">Arm</option>
+                            <option value="Thigh">Thigh</option>
+                            <option value="Abdomen">Abdomen</option>
+                        </select>
+                        <span class="info-text">Please select a part before detection.</span>
+                    </div>
+                    
+                    <!-- 蓝牙连接状态 -->
+                    <div class="bluetooth-section">
+                        <div class="bluetooth-header">
+                            <span class="bluetooth-title">Bluetooth Connection</span>
+                            <button id="bluetoothBtn" class="btn" style="padding: 8px 16px; font-size: 12px;">Connect</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-weight: 600; color: #374151; font-size: 13px;">Status:</span>
+                            <span id="bluetoothStatus" class="bluetooth-status">Disconnected</span>
+                        </div>
+                        <div id="bluetoothInfo" style="margin-top: 8px; font-size: 12px; color: #6b7280;"></div>
+                    </div>
+                    
+                    <div id="signalPlot" style="width:100%;height:350px;margin-bottom:20px;"></div>
+                    
+                    <div id="signalInfo" style="display: none; margin-top: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">Detected Peaks:</label>
+                            <div class="peak-info">
+                                S11 Peak 1: <span id="s11_1_value">--</span> dB at <span id="freq_1_value">--</span> GHz<br>
+                                S11 Peak 2: <span id="s11_2_value">--</span> dB at <span id="freq_2_value">--</span> GHz
+                            </div>
+                        </div>
+                        <button class="btn" onclick="predict()" style="width: 100%; margin-top: 10px;">Predict Thickness</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thickness Prediction -->
+            <div class="card">
+                <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="card-title">Thickness Prediction</h3>
+                        <button id="clearFileBtn" class="btn btn-secondary" disabled>Clear File</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <!-- 厚度预测卡片网格 -->
+                    <div class="thickness-grid">
+                        <!-- 脂肪厚度卡片 -->
+                        <div class="thickness-card fat-card">
+                            <div class="status-indicator"></div>
+                            <div class="card-icon">🥩</div>
+                            <div class="card-content-inner">
+                                <h4 class="card-subtitle">Fat Thickness</h4>
+                                <div class="value-display">
+                                    <span id="fatValue" class="main-value">0.0</span>
+                                    <span class="unit">mm</span>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div id="fatProgress" class="progress-fill fat-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-label">Health Range: 5-15mm</span>
+                                </div>
+                                <p class="card-description">Subcutaneous fat layer thickness indicates body composition and health status.</p>
+                            </div>
+                        </div>
+
+                        <!-- 肌肉厚度卡片 -->
+                        <div class="thickness-card muscle-card">
+                            <div class="status-indicator"></div>
+                            <div class="card-icon">💪</div>
+                            <div class="card-content-inner">
+                                <h4 class="card-subtitle">Muscle Thickness</h4>
+                                <div class="value-display">
+                                    <span id="muscleValue" class="main-value">0.0</span>
+                                    <span class="unit">mm</span>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div id="muscleProgress" class="progress-fill muscle-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-label">Health Range: 15-35mm</span>
+                                </div>
+                                <p class="card-description">Muscle thickness reflects physical fitness and strength levels.</p>
+                            </div>
+                        </div>
+
+                        <!-- 比例卡片 -->
+                        <div class="thickness-card ratio-card">
+                            <div class="status-indicator"></div>
+                            <div class="card-icon">⚖️</div>
+                            <div class="card-content-inner">
+                                <h4 class="card-subtitle">Composition Ratio</h4>
+                                <div class="value-display">
+                                    <span id="ratioValue" class="main-value">0.0</span>
+                                </div>
+                                <div class="composition-display">
+                                    <div class="composition-item">
+                                        <span class="composition-label">Fat:</span>
+                                        <span id="fatPercentage" class="composition-value">0%</span>
+                                    </div>
+                                    <div class="composition-item">
+                                        <span class="composition-label">Muscle:</span>
+                                        <span id="musclePercentage" class="composition-value">0%</span>
+                                    </div>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar">
+                                        <div id="ratioProgress" class="progress-fill ratio-fill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="progress-label">Ratio = Muscle/Fat</span>
+                                </div>
+                                <p class="card-description">Body composition ratio showing the proportion of muscle to fat tissue.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Processing signal file...</p>
+                    </div>
+                    
+                    <div id="messageContainer"></div>
+                </div>
+            </div>
+
+            <!-- Composition Ratio -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Composition Ratio</h3>
+                </div>
+                <div class="card-content">
+                    <div class="donut-container">
+                        <div class="donut-chart">
+                            <canvas id="fatDonut"></canvas>
+                            <div class="donut-label">
+                                <span id="fatPercentage" class="donut-percentage">0%</span>
+                                <span class="donut-name">Fat</span>
+                            </div>
+                        </div>
+                        <div class="donut-chart">
+                            <canvas id="muscleDonut"></canvas>
+                            <div class="donut-label">
+                                <span id="musclePercentage" class="donut-percentage">0%</span>
+                                <span class="donut-name">Muscle</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advice Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Health Advice</h3>
+                </div>
+                <div class="card-content">
+                    <div class="advice-content" id="adviceContent">
+                        Please complete the measurement to receive personalized health advice.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part Selection Modal -->
+    <div id="partModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Part Selection</h3>
+            <img id="partImage" class="part-image" src="" alt="Part Image">
+            <p>Please upload a signal file for this body part:</p>
+            <input type="file" id="signalFile" class="file-upload" accept=".txt">
+            <label for="signalFile" class="upload-btn">Upload Signal File</label>
+            <button class="btn" onclick="closeModal()" style="margin-top: 10px;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let selectedPart = '';
+        let muscleChart;
+        let fatChart;
+        let bluetoothDevice = null;
+        let bluetoothServer = null;
+        let bluetoothCharacteristic = null;
+        
+        const partImages = {
+            'Arm': '../software picture/arm.png',
+            'Thigh': '../software picture/thigh.png',
+            'Abdomen': '../software picture/abomdand.png'
+        };
+
+        // 模型参数 - 从web_module_1.html中获取的实际参数
+        const WEIGHTS = [
+            [[-0.5137792229652405, -0.2904090583324432, 0.5092436671257019, -0.2904090583324432],
+             [-0.2904090583324432, 0.5092436671257019, -0.2904090583324432, 0.5092436671257019],
+             [0.5092436671257019, -0.2904090583324432, 0.5092436671257019, -0.2904090583324432],
+             [-0.2904090583324432, 0.5092436671257019, -0.2904090583324432, 0.5092436671257019]],
+            [[0.7071067811865475], [-0.7071067811865475], [0.7071067811865475], [-0.7071067811865475]]
+        ];
+        
+        const BIASES = [
+            [0.0, 0.0, 0.0, 0.0],
+            [0.0]
+        ];
+        
+        const SCALE_MEANS = [-19.4, -18.8, 3.35e9, 3.45e9];
+        const SCALE_STDS = [1.5, 1.2, 2e8, 2e8];
+
+        // 神经网络函数
+        function relu(x) {
+            return Math.max(0, x);
+        }
+
+        function matrixMultiply(input, weights) {
+            if (!Array.isArray(input)) {
+                input = [input];
+            }
+            const result = new Array(weights[0].length).fill(0);
+            for (let i = 0; i < weights[0].length; i++) {
+                for (let j = 0; j < input.length; j++) {
+                    result[i] += input[j] * weights[j][i];
+                }
+            }
+            return result;
+        }
+
+        function vectorAdd(vec1, vec2) {
+            return vec1.map((val, idx) => val + vec2[idx]);
+        }
+
+        function applyActivation(vector) {
+            return vector.map(x => relu(x));
+        }
+
+        function forward(input, weights, biases) {
+            let current = input;
+            for (let i = 0; i < weights.length; i++) {
+                current = matrixMultiply(current, weights[i]);
+                current = vectorAdd(current, biases[i]);
+                if (i < weights.length - 1) {
+                    current = applyActivation(current);
+                }
+            }
+            return current[0];
+        }
+
+        function predictFatThickness(s11_1, s11_2, freq_1, freq_2) {
+            const scaled_features = [
+                (s11_1 - SCALE_MEANS[0]) / SCALE_STDS[0],
+                (s11_2 - SCALE_MEANS[1]) / SCALE_STDS[1],
+                (freq_1 - SCALE_MEANS[2]) / SCALE_STDS[2],
+                (freq_2 - SCALE_MEANS[3]) / SCALE_STDS[3]
+            ];
+            
+            const prediction = forward(scaled_features, WEIGHTS, BIASES);
+            return Math.max(0, prediction);
+        }
+
+        // 图表初始化
+        function initializeCharts() {
+            const ctx = document.getElementById('fatDonut').getContext('2d');
+            fatChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#1e40af', '#f8fbff'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            const muscleCtx = document.getElementById('muscleDonut').getContext('2d');
+            muscleChart = new Chart(muscleCtx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#f59e0b', '#f8fbff'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 部位选择
+            document.getElementById('partSelect').addEventListener('change', function() {
+                selectedPart = this.value;
+                if (selectedPart) {
+                    showPartModal(selectedPart);
+                }
+            });
+
+            // 图片上传
+            document.getElementById('imageUpload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('userImage').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // 信号文件处理
+            document.getElementById('signalFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    processSignalFile(file);
+                }
+            });
+
+            // 蓝牙连接按钮
+            document.getElementById('bluetoothBtn').addEventListener('click', function() {
+                if (bluetoothDevice) {
+                    disconnectBluetooth();
+                } else {
+                    connectBluetooth();
+                }
+            });
+
+            // 点击modal外部关闭
+            window.onclick = function(event) {
+                const modal = document.getElementById('partModal');
+                if (event.target == modal) {
+                    closeModal();
+                }
+            }
+        }
+
+        // ======= 信号处理函数 - 基于signal_processing.py =======
+        
+        // 低通滤波器
+        function lowpassFilter(data, fs, cutoff = 1e9, order = 5) {
+            // 简化的低通滤波实现
+            const nyq = 0.5 * fs;
+            const normalCutoff = cutoff / nyq;
+            const windowSize = Math.floor(data.length / 20);
+            
+            const filtered = new Array(data.length).fill(0);
+            for (let i = 0; i < data.length; i++) {
+                let sum = 0;
+                let count = 0;
+                for (let j = Math.max(0, i - windowSize); j < Math.min(data.length, i + windowSize + 1); j++) {
+                    sum += data[j];
+                    count++;
+                }
+                filtered[i] = sum / count;
+            }
+            return filtered;
+        }
+
+        // 数据读取与S11计算
+        function para(fileContent) {
+            const frequencies = [];
+            const RI = [];
+            const R = [];
+            
+            const lines = fileContent.split('\n');
+            for (const line of lines) {
+                const values = line.trim().split(/\s+/);
+                if (values.length === 3) {
+                    const [x, y, z] = values.map(Number);
+                    if (!isNaN(x) && !isNaN(y) && !isNaN(z)) {
+                        frequencies.push(x);
+                        RI.push(y);
+                        R.push(z);
+                    }
+                }
+            }
+
+            // 过滤4.4GHz以下的频率
+            const mask = frequencies.map((f, i) => ({ f, i })).filter(item => item.f < 4.4e9);
+            const commonFreqs = mask.map(item => item.f);
+            const filteredRI = mask.map(item => RI[item.i]);
+            const filteredR = mask.map(item => R[item.i]);
+
+            // 应用低通滤波
+            const fs = 2 * Math.max(...commonFreqs);
+            const filteredRI_smooth = lowpassFilter(filteredRI, fs);
+            const filteredR_smooth = lowpassFilter(filteredR, fs);
+
+            // 计算复数形式
+            const complexRI = filteredRI_smooth.map((re, i) => {
+                const im = filteredR_smooth[i];
+                return { re, im };
+            });
+
+            // 计算幅值
+            const reflectionMagnitude = complexRI.map(c => Math.sqrt(c.re * c.re + c.im * c.im));
+            
+            // 计算S11
+            const S11 = reflectionMagnitude.map(mag => {
+                const value = 20 * Math.log10(Math.abs(mag));
+                return isFinite(value) ? value : 0;
+            });
+
+            return { commonFreqs, S11, complexRI };
+        }
+
+        // 寻找S11谷值
+        function findS11MinPeaks(freqs, s11Values, thresholdDb = -5) {
+            const freqRange = [2e9, 4.4e9];
+            const invertedS11 = s11Values.map(s => -s);
+            
+            // 查找局部最小值
+            const peaks = [];
+            for (let i = 1; i < invertedS11.length - 1; i++) {
+                if (invertedS11[i] > invertedS11[i-1] && 
+                    invertedS11[i] > invertedS11[i+1] && 
+                    invertedS11[i] > -thresholdDb) {
+                    peaks.push(i);
+                }
+            }
+            
+            const minFrequencies = peaks.map(i => freqs[i]);
+            const minS11Values = peaks.map(i => s11Values[i]);
+            
+            // 过滤频率范围
+            const mask = minFrequencies.map((f, i) => ({ f, i }))
+                .filter(item => item.f >= freqRange[0] && item.f <= freqRange[1]);
+            
+            return {
+                minFrequencies: mask.map(item => minFrequencies[item.i]),
+                minS11Values: mask.map(item => minS11Values[item.i])
+            };
+        }
+
+        // 提取2.7GHz之后最低2个S11谷值
+        function extractTopNMinPeaksAfterThreshold(peakFreqs, peakVals, threshold = 2.7e9, topN = 2, minFreqDiff = 100e6) {
+            const selected = peakFreqs.map((freq, i) => ({ freq, val: peakVals[i] }))
+                .filter(item => item.freq >= threshold);
+            
+            if (selected.length < topN) {
+                return { selectedFreqs: null, selectedVals: null };
+            }
+            
+            // 按S11值排序（最小值在前）
+            selected.sort((a, b) => a.val - b.val);
+            let result = selected.slice(0, topN);
+            
+            // 检查频率差异
+            if (Math.abs(result[0].freq - result[1].freq) < minFreqDiff) {
+                for (const candidate of selected.slice(topN)) {
+                    if (Math.abs(result[0].freq - candidate.freq) >= minFreqDiff) {
+                        result[1] = candidate;
+                        break;
+                    }
+                }
+            }
+            
+            return {
+                selectedFreqs: result.map(item => item.freq),
+                selectedVals: result.map(item => item.val)
+            };
+        }
+
+        // Savitzky-Golay滤波
+        function savgolFilter(array, windowSize, polyOrder) {
+            const halfWindow = Math.floor(windowSize / 2);
+            const filtered = new Array(array.length);
+            
+            for (let i = 0; i < array.length; i++) {
+                let sum = 0;
+                let count = 0;
+                for (let j = Math.max(0, i - halfWindow); j < Math.min(array.length, i + halfWindow + 1); j++) {
+                    sum += array[j];
+                    count++;
+                }
+                filtered[i] = sum / count;
+            }
+            return filtered;
+        }
+
+        // 修改文件加载和处理函数
+        function loadSignalFile() {
+            if (!selectedPart) {
+                showMessage('Please select a part first!', 'error');
+                return;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    processSignalFile(file);
+                }
+            };
+            input.click();
+        }
+
+        async function processSignalFile(file) {
+            showLoading(true);
+            
+            try {
+                const fileContent = await file.text();
+                console.log('File loaded, processing...');
+
+                // 使用signal_processing.py的方法处理数据
+                const { commonFreqs, S11, complexRI } = para(fileContent);
+                
+                if (commonFreqs.length === 0) {
+                    throw new Error('No valid data found in file');
+                }
+
+                console.log('Data processed, finding peaks...');
+                console.log('Frequency range:', Math.min(...commonFreqs) / 1e9, 'to', Math.max(...commonFreqs) / 1e9, 'GHz');
+                console.log('S11 range:', Math.min(...S11), 'to', Math.max(...S11), 'dB');
+
+                // 应用Savitzky-Golay滤波
+                const s11Smooth = savgolFilter(S11, 23, 3);
+                
+                // 寻找S11谷值
+                const { minFrequencies, minS11Values } = findS11MinPeaks(commonFreqs, s11Smooth);
+                
+                console.log('Found peaks:', minFrequencies.length);
+
+                // 提取2.7GHz之后的最低2个谷值
+                const { selectedFreqs, selectedVals } = extractTopNMinPeaksAfterThreshold(
+                    minFrequencies, minS11Values, 2e9, 2
+                );
+
+                if (selectedVals && selectedVals.length >= 2) {
+                    console.log('Selected frequencies:', selectedFreqs.map(f => f / 1e9), 'GHz');
+                    console.log('Selected S11 values:', selectedVals, 'dB');
+
+                    // 存储峰值用于预测
+                    window.peakData = {
+                        s11_1: selectedVals[1],
+                        s11_2: selectedVals[0],
+                        freq_1: selectedFreqs[1],
+                        freq_2: selectedFreqs[0]
+                    };
+
+                    // 更新峰值信息显示
+                    document.getElementById('s11_1_value').textContent = selectedVals[1].toFixed(2);
+                    document.getElementById('s11_2_value').textContent = selectedVals[0].toFixed(2);
+                    document.getElementById('freq_1_value').textContent = (selectedFreqs[1] / 1e9).toFixed(2);
+                    document.getElementById('freq_2_value').textContent = (selectedFreqs[0] / 1e9).toFixed(2);
+                    document.getElementById('signalInfo').style.display = 'block';
+                    closeModal();
+
+                    // 绘制信号曲线和峰值
+                    plotSignalWithPeaks(commonFreqs, s11Smooth, selectedFreqs, selectedVals);
+
+                    showMessage('Signal processed successfully', 'success');
+                } else {
+                    throw new Error('Could not detect enough valleys in the signal');
+                }
+            } catch (error) {
+                console.error('Error processing file:', error);
+                showMessage(error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 绘制信号曲线和峰值
+        function plotSignalWithPeaks(frequencies, s11Values, peakFreqs, peakVals) {
+            const traceSignal = {
+                x: frequencies.map(f => f / 1e9), // 转为GHz
+                y: s11Values,
+                mode: 'lines',
+                name: 'S11 Signal',
+                line: { 
+                    color: '#3b82f6',
+                    width: 3
+                }
+            };
+            const tracePeaks = {
+                x: peakFreqs.map(f => f / 1e9),
+                y: peakVals,
+                mode: 'markers',
+                name: 'Detected Peaks',
+                marker: { 
+                    color: '#ef4444', 
+                    size: 14, 
+                    symbol: 'diamond',
+                    line: {
+                        color: '#ffffff',
+                        width: 2
+                    }
+                }
+            };
+            const layout = {
+                title: {
+                    text: 'S11 Signal & Detected Peaks',
+                    font: {
+                        size: 18,
+                        color: '#1e3a8a'
+                    }
+                },
+                xaxis: { 
+                    title: 'Frequency (GHz)',
+                    gridcolor: '#e8f2ff',
+                    zerolinecolor: '#e8f2ff'
+                },
+                yaxis: { 
+                    title: 'S11 (dB)',
+                    gridcolor: '#e8f2ff',
+                    zerolinecolor: '#e8f2ff'
+                },
+                showlegend: true,
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff',
+                font: {
+                    color: '#374151'
+                },
+                legend: {
+                    x: 0.02,
+                    y: 0.98,
+                    bgcolor: 'rgba(255,255,255,0.8)',
+                    bordercolor: '#e8f2ff'
+                }
+            };
+            Plotly.newPlot('signalPlot', [traceSignal, tracePeaks], layout, {responsive: true});
+        }
+
+        function showLoading(show) {
+            const loadingElement = document.getElementById('loading');
+            if (loadingElement) {
+                loadingElement.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // 修改预测函数
+        function predict() {
+            console.log("Prediction started...");
+            console.log("Selected part:", selectedPart);
+            console.log("Peak data:", window.peakData);
+
+            if (!selectedPart) {
+                showMessage('Please select a body part first', 'error');
+                return;
+            }
+
+            if (!window.peakData) {
+                showMessage('Please load a signal file first', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('loading').style.display = 'block';
+
+                // 准备原始特征数据
+                const rawFeatures = [
+                    window.peakData.s11_1,
+                    window.peakData.s11_2,
+                    window.peakData.freq_1,
+                    window.peakData.freq_2
+                ];
+                
+                console.log("Raw features:", rawFeatures);
+                
+                // 使用x_scaler对输入特征进行标准化
+                const scaledFeatures = x_scaler.transform(rawFeatures);
+                console.log("Scaled features:", scaledFeatures);
+                
+                // 使用三个独立的模型进行预测（模拟MultiOutputRegressor的输出）
+                const fatPrediction = RF_MODEL_0.predict(scaledFeatures);
+                const ratioPrediction = RF_MODEL_1.predict(scaledFeatures);
+                const musclePrediction = RF_MODEL_2.predict(scaledFeatures);
+                
+                console.log("Raw model outputs:", fatPrediction, ratioPrediction, musclePrediction);
+                
+                // 将三个模型输出组合成数组，使用y_scaler进行反标准化
+                // 注意：y_scaler期望的输入顺序应该是 [fat, ratio, muscle]
+                const scaledOutputs = [fatPrediction, ratioPrediction, musclePrediction];
+                const finalResults = y_scaler.inverse_transform(scaledOutputs);
+                
+                const finalFatPrediction = finalResults[0];
+                const finalRatioPrediction = finalResults[1];
+                const finalMusclePrediction = finalResults[2];
+
+                console.log("Final results - Fat:", finalFatPrediction, "Ratio:", finalRatioPrediction, "Muscle:", finalMusclePrediction);
+
+                // 更新进度条
+                const maxThickness = 50;
+                const fatPercentage = (finalFatPrediction / maxThickness) * 100;
+                const musclePercentage = (finalMusclePrediction / maxThickness) * 100;
+                const ratioProgressPercentage = musclePercentage; // 使用肌肉成分百分比作为进度条
+                
+                document.getElementById('fatProgress').style.width = `${Math.min(fatPercentage, 100)}%`;
+                document.getElementById('muscleProgress').style.width = `${Math.min(musclePercentage, 100)}%`;
+                document.getElementById('ratioProgress').style.width = `${Math.min(ratioProgressPercentage, 100)}%`;
+                
+                document.getElementById('fatValue').textContent = `${finalFatPrediction.toFixed(2)}`;
+                document.getElementById('muscleValue').textContent = `${finalMusclePrediction.toFixed(2)}`;
+                document.getElementById('ratioValue').textContent = `${finalRatioPrediction.toFixed(2)}`;
+
+                // 计算成分比例百分比
+                // ratio = muscle/fat, 所以 fat% = 1/(1+ratio) * 100, muscle% = ratio/(1+ratio) * 100
+                // 例如: ratio = 2.0 意味着肌肉是脂肪的2倍
+                // fat% = 1/(1+2) * 100 = 33.3%, muscle% = 2/(1+2) * 100 = 66.7%
+                const total = 1 + finalRatioPrediction;
+                const fatCompPercentage = (1 / total) * 100;
+                const muscleCompPercentage = (finalRatioPrediction / total) * 100;
+                
+                document.getElementById('fatPercentage').textContent = `${fatCompPercentage.toFixed(1)}%`;
+                document.getElementById('musclePercentage').textContent = `${muscleCompPercentage.toFixed(1)}%`;
+
+                // 添加数值变化动画
+                document.getElementById('fatValue').classList.add('value-change');
+                document.getElementById('muscleValue').classList.add('value-change');
+                document.getElementById('ratioValue').classList.add('value-change');
+                document.getElementById('fatPercentage').classList.add('value-change');
+                document.getElementById('musclePercentage').classList.add('value-change');
+
+                // 更新状态指示器
+                updateStatusIndicators(finalFatPrediction, finalMusclePrediction, finalRatioPrediction);
+
+                // 更新圆环图
+                fatChart.data.datasets[0].data = [finalFatPrediction, maxThickness - finalFatPrediction];
+                fatChart.data.datasets[0].backgroundColor = ['#1e40af', '#f8fbff'];
+                fatChart.update();
+                muscleChart.data.datasets[0].data = [finalMusclePrediction, maxThickness - finalMusclePrediction];
+                muscleChart.data.datasets[0].backgroundColor = ['#f59e0b', '#f8fbff'];
+                muscleChart.update();
+                
+                // 更新健康建议
+                updateAdvice(finalFatPrediction, finalMusclePrediction);
+                
+                showMessage('Prediction completed successfully', 'success');
+            } catch (error) {
+                console.error("Prediction error:", error);
+                showMessage(error.message, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // 更新建议
+        function updateAdvice(fatThickness, muscleThickness) {
+            const adviceContent = document.getElementById('adviceContent');
+            const fatRatio = fatThickness / (fatThickness + muscleThickness);
+            
+            let advice = '';
+            if (fatRatio > 0.4) {
+                advice = `
+                    <h4>⚠️ High Fat Ratio Detected</h4>
+                    <p style="color: #dc2626; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${(fatRatio * 100).toFixed(1)}%, which is above the recommended range.</p>
+                    <div style="background: #fef2f2; border-radius: 8px; padding: 16px; border-left: 4px solid #dc2626;">
+                        <h5 style="color: #dc2626; margin-bottom: 12px; font-size: 14px;">Recommendations:</h5>
+                        <ul style="margin-left: 20px; color: #374151;">
+                            <li>Increase physical activity to 150+ minutes per week</li>
+                            <li>Focus on cardiovascular exercises</li>
+                            <li>Monitor caloric intake and reduce high-fat foods</li>
+                            <li>Consider consulting with a nutritionist</li>
+                            <li>Schedule regular health check-ups</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (fatRatio < 0.2) {
+                advice = `
+                    <h4>⚠️ Low Fat Ratio Detected</h4>
+                    <p style="color: #f59e0b; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${(fatRatio * 100).toFixed(1)}%, which is below the recommended range.</p>
+                    <div style="background: #fffbeb; border-radius: 8px; padding: 16px; border-left: 4px solid #f59e0b;">
+                        <h5 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">Recommendations:</h5>
+                        <ul style="margin-left: 20px; color: #374151;">
+                            <li>Ensure adequate nutrition and healthy fats</li>
+                            <li>Consider strength training to build muscle</li>
+                            <li>Monitor your overall health indicators</li>
+                            <li>Consult with a healthcare professional</li>
+                            <li>Maintain a balanced diet</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                advice = `
+                    <h4>✅ Healthy Fat Ratio</h4>
+                    <p style="color: #059669; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${(fatRatio * 100).toFixed(1)}%, which is within the healthy range.</p>
+                    <div style="background: #f0fdf4; border-radius: 8px; padding: 16px; border-left: 4px solid #059669;">
+                        <h5 style="color: #059669; margin-bottom: 12px; font-size: 14px;">Maintenance Tips:</h5>
+                        <ul style="margin-left: 20px; color: #374151;">
+                            <li>Maintain your current healthy lifestyle</li>
+                            <li>Continue regular exercise routine</li>
+                            <li>Keep monitoring your health metrics</li>
+                            <li>Stay hydrated and eat balanced meals</li>
+                            <li>Schedule regular health assessments</li>
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            adviceContent.innerHTML = advice;
+        }
+
+        // 显示消息
+        function showMessage(message, type) {
+            console.log(`Message: ${type} - ${message}`);
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        // 显示部位选择弹窗
+        function showPartModal(part) {
+            const modal = document.getElementById('partModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const partImage = document.getElementById('partImage');
+            
+            modalTitle.textContent = `${part} Measurement Position`;
+            partImage.src = partImages[part];
+            modal.style.display = 'block';
+        }
+
+        // 修改关闭弹窗函数
+        function closeModal() {
+            document.getElementById('partModal').style.display = 'none';
+        }
+        
+        // 蓝牙连接相关函数
+        async function connectBluetooth() {
+            try {
+                // 检查浏览器是否支持Web Bluetooth API
+                if (!navigator.bluetooth) {
+                    throw new Error('Web Bluetooth API is not supported in this browser');
+                }
+
+                // 检查蓝牙是否可用
+                if (!navigator.bluetooth.getAvailability()) {
+                    throw new Error('Bluetooth is not available on this device');
+                }
+
+                updateBluetoothStatus('Connecting...', 'connecting');
+                updateBluetoothInfo('Requesting Bluetooth device...');
+
+                // 请求蓝牙设备
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    // 可以根据实际设备调整这些过滤器
+                    acceptAllDevices: true,
+                    optionalServices: ['generic_access', 'generic_attribute']
+                });
+
+                updateBluetoothInfo('Connecting to device...');
+
+                // 连接到GATT服务器
+                bluetoothServer = await bluetoothDevice.gatt.connect();
+                updateBluetoothInfo('Connected to GATT server');
+
+                // 监听断开连接事件
+                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+                updateBluetoothStatus('Connected', 'connected');
+                updateBluetoothInfo(`Connected to: ${bluetoothDevice.name || 'Unknown Device'}`);
+                
+                // 更新按钮文本
+                document.getElementById('bluetoothBtn').textContent = 'Disconnect';
+
+            } catch (error) {
+                console.error('Bluetooth connection error:', error);
+                updateBluetoothStatus('Error', 'error');
+                updateBluetoothInfo(`Connection failed: ${error.message}`);
+                bluetoothDevice = null;
+                bluetoothServer = null;
+            }
+        }
+
+        function disconnectBluetooth() {
+            if (bluetoothDevice && bluetoothDevice.gatt.connected) {
+                bluetoothDevice.gatt.disconnect();
+            }
+            onDisconnected();
+        }
+
+        function onDisconnected() {
+            bluetoothDevice = null;
+            bluetoothServer = null;
+            bluetoothCharacteristic = null;
+            
+            updateBluetoothStatus('Disconnected', 'disconnected');
+            updateBluetoothInfo('Device disconnected');
+            document.getElementById('bluetoothBtn').textContent = 'Connect';
+        }
+
+        function updateBluetoothStatus(status, type) {
+            const statusElement = document.getElementById('bluetoothStatus');
+            statusElement.textContent = status;
+            
+            // 移除所有状态类
+            statusElement.className = 'bluetooth-status';
+            
+            // 添加新的状态类
+            switch (type) {
+                case 'connected':
+                    statusElement.classList.add('connected');
+                    break;
+                case 'connecting':
+                    statusElement.classList.add('connecting');
+                    break;
+                case 'error':
+                    statusElement.classList.add('error');
+                    break;
+                default: // disconnected
+                    statusElement.classList.add('disconnected');
+                    break;
+            }
+        }
+
+        function updateBluetoothInfo(info) {
+            document.getElementById('bluetoothInfo').textContent = info;
+        }
+
+        // 检查蓝牙可用性
+        function checkBluetoothAvailability() {
+            if (navigator.bluetooth) {
+                navigator.bluetooth.getAvailability().then(available => {
+                    if (!available) {
+                        updateBluetoothStatus('Not Available', 'error');
+                        updateBluetoothInfo('Bluetooth is not available on this device');
+                        document.getElementById('bluetoothBtn').disabled = true;
+                    }
+                });
+            } else {
+                updateBluetoothStatus('Not Supported', 'error');
+                updateBluetoothInfo('Web Bluetooth API is not supported in this browser');
+                document.getElementById('bluetoothBtn').disabled = true;
+            }
+        }
+        
+        // 测试成分比例计算
+        function testCompositionRatio() {
+            console.log("=== 成分比例计算测试 ===");
+            
+            // 测试案例1: ratio = 1.0 (肌肉=脂肪)
+            const ratio1 = 1.0;
+            const total1 = 1 + ratio1;
+            const fat1 = (1 / total1) * 100;
+            const muscle1 = (ratio1 / total1) * 100;
+            console.log(`Ratio ${ratio1}: Fat ${fat1.toFixed(1)}%, Muscle ${muscle1.toFixed(1)}%`);
+            
+            // 测试案例2: ratio = 2.0 (肌肉=2倍脂肪)
+            const ratio2 = 2.0;
+            const total2 = 1 + ratio2;
+            const fat2 = (1 / total2) * 100;
+            const muscle2 = (ratio2 / total2) * 100;
+            console.log(`Ratio ${ratio2}: Fat ${fat2.toFixed(1)}%, Muscle ${muscle2.toFixed(1)}%`);
+            
+            // 测试案例3: ratio = 0.5 (脂肪=2倍肌肉)
+            const ratio3 = 0.5;
+            const total3 = 1 + ratio3;
+            const fat3 = (1 / total3) * 100;
+            const muscle3 = (ratio3 / total3) * 100;
+            console.log(`Ratio ${ratio3}: Fat ${fat3.toFixed(1)}%, Muscle ${muscle3.toFixed(1)}%`);
+        }
+
+        // 页面加载时运行测试
+        window.onload = function() {
+            console.log("Page loaded, initializing...");
+            initializeCharts();
+            setupEventListeners();
+            checkBluetoothAvailability();
+            testCompositionRatio(); // 运行测试
+        };
+
+        // 更新状态指示器
+        function updateStatusIndicators(fatThickness, muscleThickness, ratio) {
+            // 脂肪厚度状态 (健康范围: 5-15mm)
+            const fatIndicator = document.querySelector('.fat-card .status-indicator');
+            if (fatThickness < 5) {
+                fatIndicator.className = 'status-indicator warning';
+            } else if (fatThickness >= 5 && fatThickness <= 15) {
+                fatIndicator.className = 'status-indicator healthy';
+            } else {
+                fatIndicator.className = 'status-indicator danger';
+            }
+
+            // 肌肉厚度状态 (健康范围: 15-35mm)
+            const muscleIndicator = document.querySelector('.muscle-card .status-indicator');
+            if (muscleThickness < 15) {
+                muscleIndicator.className = 'status-indicator warning';
+            } else if (muscleThickness >= 15 && muscleThickness <= 35) {
+                muscleIndicator.className = 'status-indicator healthy';
+            } else {
+                muscleIndicator.className = 'status-indicator danger';
+            }
+
+            // 比例状态 (ratio = muscle/fat, 健康范围: 1.0-3.0)
+            const ratioIndicator = document.querySelector('.ratio-card .status-indicator');
+            if (ratio < 1.0) {
+                ratioIndicator.className = 'status-indicator warning'; // 脂肪比例较高
+            } else if (ratio >= 1.0 && ratio <= 3.0) {
+                ratioIndicator.className = 'status-indicator healthy'; // 平衡的比例
+            } else {
+                ratioIndicator.className = 'status-indicator danger'; // 肌肉比例过高
+            }
+
+            // 移除动画类
+            setTimeout(() => {
+                document.getElementById('fatValue').classList.remove('value-change');
+                document.getElementById('muscleValue').classList.remove('value-change');
+                document.getElementById('ratioValue').classList.remove('value-change');
+            }, 600);
+        }
+    </script>
+</body>
+</html> 
