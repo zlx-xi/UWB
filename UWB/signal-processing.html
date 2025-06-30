@@ -7,11 +7,11 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/numeric@1.2.6/numeric.min.js"></script>
-    <script src="x_scaler.js"></script>
-    <script src="y_scaler.js"></script>
-    <script src="model_output0.js"></script>
-    <script src="model_output1.js"></script>
-    <script src="model_output2.js"></script>
+    <script src="js/x_scaler.js"></script>
+    <script src="js/y_scaler.js"></script>
+    <script src="js/model_output0.js"></script>
+    <script src="js/model_output1.js"></script>
+    <script src="js/model_output2.js"></script>
     <style>
         * {
             margin: 0;
@@ -882,7 +882,7 @@
         <div class="left-panel">
             <div class="card">
                 <div class="card-content">
-                    <img id="userImage" src="../software picture/happy .jpg" alt="User" class="user-image">
+                    <img id="userImage" src="images/happy .jpg" alt="User" class="user-image">
                     <input type="file" id="imageUpload" class="file-upload" accept="image/*">
                     <label for="imageUpload" class="upload-btn">Upload Photo</label>
                     
@@ -1114,9 +1114,9 @@
         let bluetoothCharacteristic = null;
         
         const partImages = {
-            'Arm': '../software picture/arm.png',
-            'Thigh': '../software picture/thigh.png',
-            'Abdomen': '../software picture/abomdand.png'
+            'Arm': 'images/arm.png',
+            'Thigh': 'images/thigh.png',
+            'Abdomen': 'images/abomdand.png'
         };
 
         // 模型参数 - 从web_module_1.html中获取的实际参数
