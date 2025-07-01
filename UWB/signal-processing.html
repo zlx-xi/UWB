@@ -27,6 +27,145 @@
             line-height: 1.6;
         }
 
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 32px 24px 24px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            padding: 24px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            padding: 0 24px 12px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-left-color: #4ade80;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-left-color: #4ade80;
+        }
+
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-item-text {
+            flex: 1;
+        }
+
+        .nav-item-badge {
+            background: #4ade80;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: #1e3a8a;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 18px;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -876,217 +1015,280 @@
     </style>
 </head>
 <body>
-    <!-- 左侧面板 -->
-    <div class="container">
-        
-        <div class="left-panel">
-            <div class="card">
-                <div class="card-content">
-                    <img id="userImage" src="images/happy .jpg" alt="User" class="user-image">
-                    <input type="file" id="imageUpload" class="file-upload" accept="image/*">
-                    <label for="imageUpload" class="upload-btn">Upload Photo</label>
-                    
-                    <h3 class="card-title" style="margin-top: 20px;">Basic Information</h3>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Name</label>
-                        <input type="text" id="name" class="form-input" placeholder="Enter name">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Weight (kg)</label>
-                        <input type="number" id="weight" class="form-input" placeholder="Enter weight" step="0.1">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Height (cm)</label>
-                        <input type="number" id="height" class="form-input" placeholder="Enter height" step="0.1">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Gender</label>
-                        <select id="gender" class="form-select">
-                            <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Age (years)</label>
-                        <input type="number" id="age" class="form-input" placeholder="Enter age" min="0" max="100">
-                    </div>
-                </div>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                🐕 Pet Health
             </div>
+            <div class="sidebar-subtitle">UWB Body Composition Analysis</div>
         </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main Pages</div>
+                <a href="index.html" class="nav-item">
+                    <div class="nav-item-icon">🏠</div>
+                    <div class="nav-item-text">Home</div>
+                </a>
+                <a href="signal-processing.html" class="nav-item active">
+                    <div class="nav-item-icon">📊</div>
+                    <div class="nav-item-text">Signal Processing</div>
+                    <div class="nav-item-badge">New</div>
+                </a>
+                <a href="dogfit-analysis.html" class="nav-item">
+                    <div class="nav-item-icon">🐕‍🦺</div>
+                    <div class="nav-item-text">DogFit Analysis</div>
+                    <div class="nav-item-badge">Pro</div>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Features</div>
+                <a href="signal-processing.html" class="nav-item">
+                    <div class="nav-item-icon">🔬</div>
+                    <div class="nav-item-text">Tissue Analysis</div>
+                </a>
+                <a href="dogfit-analysis.html" class="nav-item">
+                    <div class="nav-item-icon">💪</div>
+                    <div class="nav-item-text">Body Composition</div>
+                </a>
+                <a href="dogfit-analysis.html" class="nav-item">
+                    <div class="nav-item-icon">📈</div>
+                    <div class="nav-item-text">Health Tracking</div>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Support</div>
+                <a href="#" class="nav-item">
+                    <div class="nav-item-icon">❓</div>
+                    <div class="nav-item-text">Help & FAQ</div>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-item-icon">📧</div>
+                    <div class="nav-item-text">Contact Us</div>
+                </a>
+            </div>
+        </nav>
+    </div>
 
-        <!-- 右侧面板 -->
-        <div class="right-panel">
-            <!-- Part Selection -->
-            <div class="card">
-                <div class="card-content">
-                    <div class="part-selection">
-                        <label class="form-label">Select Part:</label>
-                        <select id="partSelect" class="form-select part-select">
-                            <option value="">Please select</option>
-                            <option value="Arm">Arm</option>
-                            <option value="Thigh">Thigh</option>
-                            <option value="Abdomen">Abdomen</option>
-                        </select>
-                        <span class="info-text">Please select a part before detection.</span>
-                    </div>
-                    
-                    <!-- 蓝牙连接状态 -->
-                    <div class="bluetooth-section">
-                        <div class="bluetooth-header">
-                            <span class="bluetooth-title">Bluetooth Connection</span>
-                            <button id="bluetoothBtn" class="btn" style="padding: 8px 16px; font-size: 12px;">Connect</button>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <span style="font-weight: 600; color: #374151; font-size: 13px;">Status:</span>
-                            <span id="bluetoothStatus" class="bluetooth-status">Disconnected</span>
-                        </div>
-                        <div id="bluetoothInfo" style="margin-top: 8px; font-size: 12px; color: #6b7280;"></div>
-                    </div>
-                    
-                    <div id="signalPlot" style="width:100%;height:350px;margin-bottom:20px;"></div>
-                    
-                    <div id="signalInfo" style="display: none; margin-top: 20px;">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" style="display: none;">☰</button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- 左侧面板 -->
+        <div class="container">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-content">
+                        <img id="userImage" src="images/happy .jpg" alt="User" class="user-image">
+                        <input type="file" id="imageUpload" class="file-upload" accept="image/*">
+                        <label for="imageUpload" class="upload-btn">Upload Photo</label>
+                        
+                        <h3 class="card-title" style="margin-top: 20px;">Basic Information</h3>
+                        
                         <div class="form-group">
-                            <label class="form-label">Detected Peaks:</label>
-                            <div class="peak-info">
-                                S11 Peak 1: <span id="s11_1_value">--</span> dB at <span id="freq_1_value">--</span> GHz<br>
-                                S11 Peak 2: <span id="s11_2_value">--</span> dB at <span id="freq_2_value">--</span> GHz
-                            </div>
+                            <label class="form-label">Name</label>
+                            <input type="text" id="name" class="form-input" placeholder="Enter name">
                         </div>
-                        <button class="btn" onclick="predict()" style="width: 100%; margin-top: 10px;">Predict Thickness</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Thickness Prediction -->
-            <div class="card">
-                <div class="card-header">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 class="card-title">Thickness Prediction</h3>
-                        <button id="clearFileBtn" class="btn btn-secondary" disabled>Clear File</button>
-                    </div>
-                </div>
-                <div class="card-content">
-                    <!-- 厚度预测卡片网格 -->
-                    <div class="thickness-grid">
-                        <!-- 脂肪厚度卡片 -->
-                        <div class="thickness-card fat-card">
-                            <div class="status-indicator"></div>
-                            <div class="card-icon">🥩</div>
-                            <div class="card-content-inner">
-                                <h4 class="card-subtitle">Fat Thickness</h4>
-                                <div class="value-display">
-                                    <span id="fatValue" class="main-value">0.0</span>
-                                    <span class="unit">mm</span>
-                                </div>
-                                <div class="progress-container">
-                                    <div class="progress-bar">
-                                        <div id="fatProgress" class="progress-fill fat-fill" style="width: 0%"></div>
-                                    </div>
-                                    <span class="progress-label">Health Range: 5-15mm</span>
-                                </div>
-                                <p class="card-description">Subcutaneous fat layer thickness indicates body composition and health status.</p>
-                            </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" id="weight" class="form-input" placeholder="Enter weight" step="0.1">
                         </div>
-
-                        <!-- 肌肉厚度卡片 -->
-                        <div class="thickness-card muscle-card">
-                            <div class="status-indicator"></div>
-                            <div class="card-icon">💪</div>
-                            <div class="card-content-inner">
-                                <h4 class="card-subtitle">Muscle Thickness</h4>
-                                <div class="value-display">
-                                    <span id="muscleValue" class="main-value">0.0</span>
-                                    <span class="unit">mm</span>
-                                </div>
-                                <div class="progress-container">
-                                    <div class="progress-bar">
-                                        <div id="muscleProgress" class="progress-fill muscle-fill" style="width: 0%"></div>
-                                    </div>
-                                    <span class="progress-label">Health Range: 15-35mm</span>
-                                </div>
-                                <p class="card-description">Muscle thickness reflects physical fitness and strength levels.</p>
-                            </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" id="height" class="form-input" placeholder="Enter height" step="0.1">
                         </div>
-
-                        <!-- 比例卡片 -->
-                        <div class="thickness-card ratio-card">
-                            <div class="status-indicator"></div>
-                            <div class="card-icon">⚖️</div>
-                            <div class="card-content-inner">
-                                <h4 class="card-subtitle">Composition Ratio</h4>
-                                <div class="value-display">
-                                    <span id="ratioValue" class="main-value">0.0</span>
-                                </div>
-                                <div class="composition-display">
-                                    <div class="composition-item">
-                                        <span class="composition-label">Fat:</span>
-                                        <span id="fatPercentage" class="composition-value">0%</span>
-                                    </div>
-                                    <div class="composition-item">
-                                        <span class="composition-label">Muscle:</span>
-                                        <span id="musclePercentage" class="composition-value">0%</span>
-                                    </div>
-                                </div>
-                                <div class="progress-container">
-                                    <div class="progress-bar">
-                                        <div id="ratioProgress" class="progress-fill ratio-fill" style="width: 0%"></div>
-                                    </div>
-                                    <span class="progress-label">Ratio = Muscle/Fat</span>
-                                </div>
-                                <p class="card-description">Body composition ratio showing the proportion of muscle to fat tissue.</p>
-                            </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select id="gender" class="form-select">
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
                         </div>
-                    </div>
-                    
-                    <div class="loading" id="loading">
-                        <div class="spinner"></div>
-                        <p>Processing signal file...</p>
-                    </div>
-                    
-                    <div id="messageContainer"></div>
-                </div>
-            </div>
-
-            <!-- Composition Ratio -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Composition Ratio</h3>
-                </div>
-                <div class="card-content">
-                    <div class="donut-container">
-                        <div class="donut-chart">
-                            <canvas id="fatDonut"></canvas>
-                            <div class="donut-label">
-                                <span id="fatPercentage" class="donut-percentage">0%</span>
-                                <span class="donut-name">Fat</span>
-                            </div>
-                        </div>
-                        <div class="donut-chart">
-                            <canvas id="muscleDonut"></canvas>
-                            <div class="donut-label">
-                                <span id="musclePercentage" class="donut-percentage">0%</span>
-                                <span class="donut-name">Muscle</span>
-                            </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Age (years)</label>
+                            <input type="number" id="age" class="form-input" placeholder="Enter age" min="0" max="100">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Advice Section -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Health Advice</h3>
+            <!-- 右侧面板 -->
+            <div class="right-panel">
+                <!-- Part Selection -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="part-selection">
+                            <label class="form-label">Select Part:</label>
+                            <select id="partSelect" class="form-select part-select">
+                                <option value="">Please select</option>
+                                <option value="Arm">Arm</option>
+                                <option value="Thigh">Thigh</option>
+                                <option value="Abdomen">Abdomen</option>
+                            </select>
+                            <span class="info-text">Please select a part before detection.</span>
+                        </div>
+                        
+                        <!-- 蓝牙连接状态 -->
+                        <div class="bluetooth-section">
+                            <div class="bluetooth-header">
+                                <span class="bluetooth-title">Bluetooth Connection</span>
+                                <button id="bluetoothBtn" class="btn" style="padding: 8px 16px; font-size: 12px;">Connect</button>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-weight: 600; color: #374151; font-size: 13px;">Status:</span>
+                                <span id="bluetoothStatus" class="bluetooth-status">Disconnected</span>
+                            </div>
+                            <div id="bluetoothInfo" style="margin-top: 8px; font-size: 12px; color: #6b7280;"></div>
+                        </div>
+                        
+                        <div id="signalPlot" style="width:100%;height:350px;margin-bottom:20px;"></div>
+                        
+                        <div id="signalInfo" style="display: none; margin-top: 20px;">
+                            <div class="form-group">
+                                <label class="form-label">Detected Peaks:</label>
+                                <div class="peak-info">
+                                    S11 Peak 1: <span id="s11_1_value">--</span> dB at <span id="freq_1_value">--</span> GHz<br>
+                                    S11 Peak 2: <span id="s11_2_value">--</span> dB at <span id="freq_2_value">--</span> GHz
+                                </div>
+                            </div>
+                            <button class="btn" onclick="predict()" style="width: 100%; margin-top: 10px;">Predict Thickness</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-content">
-                    <div class="advice-content" id="adviceContent">
-                        Please complete the measurement to receive personalized health advice.
+
+                <!-- Thickness Prediction -->
+                <div class="card">
+                    <div class="card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 class="card-title">Thickness Prediction</h3>
+                            <button id="clearFileBtn" class="btn btn-secondary" disabled>Clear File</button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <!-- 厚度预测卡片网格 -->
+                        <div class="thickness-grid">
+                            <!-- 脂肪厚度卡片 -->
+                            <div class="thickness-card fat-card">
+                                <div class="status-indicator"></div>
+                                <div class="card-icon">🥩</div>
+                                <div class="card-content-inner">
+                                    <h4 class="card-subtitle">Fat Thickness</h4>
+                                    <div class="value-display">
+                                        <span id="fatValue" class="main-value">0.0</span>
+                                        <span class="unit">mm</span>
+                                    </div>
+                                    <div class="progress-container">
+                                        <div class="progress-bar">
+                                            <div id="fatProgress" class="progress-fill fat-fill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-label">Health Range: 5-15mm</span>
+                                    </div>
+                                    <p class="card-description">Subcutaneous fat layer thickness indicates body composition and health status.</p>
+                                </div>
+                            </div>
+
+                            <!-- 肌肉厚度卡片 -->
+                            <div class="thickness-card muscle-card">
+                                <div class="status-indicator"></div>
+                                <div class="card-icon">💪</div>
+                                <div class="card-content-inner">
+                                    <h4 class="card-subtitle">Muscle Thickness</h4>
+                                    <div class="value-display">
+                                        <span id="muscleValue" class="main-value">0.0</span>
+                                        <span class="unit">mm</span>
+                                    </div>
+                                    <div class="progress-container">
+                                        <div class="progress-bar">
+                                            <div id="muscleProgress" class="progress-fill muscle-fill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-label">Health Range: 15-35mm</span>
+                                    </div>
+                                    <p class="card-description">Muscle thickness reflects physical fitness and strength levels.</p>
+                                </div>
+                            </div>
+
+                            <!-- 比例卡片 -->
+                            <div class="thickness-card ratio-card">
+                                <div class="status-indicator"></div>
+                                <div class="card-icon">⚖️</div>
+                                <div class="card-content-inner">
+                                    <h4 class="card-subtitle">Composition Ratio</h4>
+                                    <div class="value-display">
+                                        <span id="ratioValue" class="main-value">0.0</span>
+                                    </div>
+                                    <div class="composition-display">
+                                        <div class="composition-item">
+                                            <span class="composition-label">Fat:</span>
+                                            <span id="fatPercentage" class="composition-value">0%</span>
+                                        </div>
+                                        <div class="composition-item">
+                                            <span class="composition-label">Muscle:</span>
+                                            <span id="musclePercentage" class="composition-value">0%</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress-container">
+                                        <div class="progress-bar">
+                                            <div id="ratioProgress" class="progress-fill ratio-fill" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-label">Ratio = Muscle/Fat</span>
+                                    </div>
+                                    <p class="card-description">Body composition ratio showing the proportion of muscle to fat tissue.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="loading" id="loading">
+                            <div class="spinner"></div>
+                            <p>Processing signal file...</p>
+                        </div>
+                        
+                        <div id="messageContainer"></div>
+                    </div>
+                </div>
+
+                <!-- Composition Ratio -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Composition Ratio</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="donut-container">
+                            <div class="donut-chart">
+                                <canvas id="fatDonut"></canvas>
+                                <div class="donut-label">
+                                    <span id="fatPercentage" class="donut-percentage">0%</span>
+                                    <span class="donut-name">Fat</span>
+                                </div>
+                            </div>
+                            <div class="donut-chart">
+                                <canvas id="muscleDonut"></canvas>
+                                <div class="donut-label">
+                                    <span id="musclePercentage" class="donut-percentage">0%</span>
+                                    <span class="donut-name">Muscle</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advice Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Health Advice</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="advice-content" id="adviceContent">
+                            Please complete the measurement to receive personalized health advice.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1905,7 +2107,44 @@
             setupEventListeners();
             checkBluetoothAvailability();
             testCompositionRatio(); // 运行测试
+            
+            // 初始化导航菜单
+            initializeNavigation();
         };
+
+        // 初始化导航菜单
+        function initializeNavigation() {
+            // Mobile menu toggle
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function() {
+                    document.getElementById('sidebar').classList.toggle('open');
+                });
+            }
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                
+                if (window.innerWidth <= 1024 && 
+                    !sidebar.contains(e.target) && 
+                    !mobileToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
+
+            // Update active nav item based on current page
+            const currentPage = window.location.pathname.split('/').pop() || 'signal-processing.html';
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+        }
 
         // 更新状态指示器
         function updateStatusIndicators(fatThickness, muscleThickness, ratio) {
