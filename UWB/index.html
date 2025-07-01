@@ -13,6 +13,115 @@
             background: linear-gradient(120deg, #e0f7fa 0%, #e3e9f7 100%);
             color: #1a2a3a;
         }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 32px 24px 24px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 400;
+        }
+
+        .sidebar-nav {
+            padding: 24px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            padding: 0 24px 12px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-left-color: #4ade80;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-left-color: #4ade80;
+        }
+
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-item-text {
+            flex: 1;
+        }
+
+        .nav-item-badge {
+            background: #4ade80;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
         .navbar {
             width: 100%;
             display: flex;
@@ -65,7 +174,7 @@
             align-items: center;
             justify-content: center;
             min-height: 80vh;
-            max-width: 1200px;
+            max-width: 1450px;
             margin: 0 auto;
             gap: 0;
         }
@@ -79,15 +188,16 @@
             font-weight: 800;
             color: #2056a8;
             margin-bottom: 18px;
-            line-height: 1.08;
+            line-height: 1.20;
             letter-spacing: -1px;
         }
         .main-desc {
             font-size: 1.25rem;
             color: #2056a8;
             margin-bottom: 38px;
-            max-width: 420px;
+            max-width: 600px;
             opacity: 0.85;
+            line-height: 1.20
         }
         .main-btns {
             display: flex;
@@ -121,16 +231,44 @@
         .dog-img {
             width: 480px;
             max-width: 90vw;
-            
             object-fit: contain;
-            
-            
-            
             transition: transform 0.3s;
         }
         .dog-img:hover {
             transform: scale(1.03) rotate(-2deg);
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: #1e3a8a;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 18px;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+        }
+
         @media (max-width: 900px) {
             .main-section {
                 flex-direction: column;
@@ -151,30 +289,126 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <span class="logo">Pet Health</span>
-        <div class="nav-links">
-            <a class="nav-link" href="#">Products</a>
-            <a class="nav-link" href="#">About</a>
-            <a class="nav-link" href="#">Contact</a>
-            <button class="nav-btn" onclick="window.location.href='web_m_2_signal.html'">DogFit Mode</button>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                🐕 Pet Health
+            </div>
+            <div class="sidebar-subtitle">UWB Body Composition Analysis</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Main Pages</div>
+                <a href="index.html" class="nav-item active">
+                    <div class="nav-item-icon">🏠</div>
+                    <div class="nav-item-text">Home</div>
+                </a>
+                <a href="signal-processing.html" class="nav-item">
+                    <div class="nav-item-icon">📊</div>
+                    <div class="nav-item-text">Signal Processing</div>
+                    <div class="nav-item-badge">New</div>
+                </a>
+                <a href="dogfit-analysis.html" class="nav-item">
+                    <div class="nav-item-icon">🐕‍🦺</div>
+                    <div class="nav-item-text">DogFit Analysis</div>
+                    <div class="nav-item-badge">Pro</div>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Features</div>
+                <a href="signal-processing.html" class="nav-item">
+                    <div class="nav-item-icon">🔬</div>
+                    <div class="nav-item-text">Tissue Analysis</div>
+                </a>
+                <a href="dogfit-analysis.html" class="nav-item">
+                    <div class="nav-item-icon">💪</div>
+                    <div class="nav-item-text">Body Composition</div>
+                </a>
+                <a href="dogfit-analysis.html" class="nav-item">
+                    <div class="nav-item-icon">📈</div>
+                    <div class="nav-item-text">Health Tracking</div>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Support</div>
+                <a href="#" class="nav-item">
+                    <div class="nav-item-icon">❓</div>
+                    <div class="nav-item-text">Help & FAQ</div>
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-item-icon">📧</div>
+                    <div class="nav-item-text">Contact Us</div>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle" style="display: none;">☰</button>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="navbar">
+            <span class="logo">Pet Health</span>
+            <div class="nav-links">
+                <a class="nav-link" href="#">Products</a>
+                <a class="nav-link" href="#">About</a>
+                <a class="nav-link" href="#">Contact</a>
+                <button class="nav-btn" onclick="window.location.href='dogfit-analysis.html'">DogFit Mode</button>
+            </div>
+        </div>
+        <div class="main-section">
+            <div class="left-content">
+                <div class="main-title">Pet Body Composition</div>
+                <div class="main-desc">
+                    Support your pet's health journey with advanced UWB-based tissue analysis.<br>
+                    Choose a mode to start your prediction and health management.
+                </div>
+                <div class="main-btns">
+                    <button class="main-btn" onclick="window.location.href='signal-processing.html'">Signal Processing Mode</button>
+                    <button class="main-btn" onclick="window.location.href='dogfit-analysis.html'">DogFit Body Composition Mode</button>
+                </div>
+            </div>
+            <div class="right-img">
+                <img class="dog-img" src="https://pngimg.com/d/dog_PNG50348.png" alt="Dog">
+            </div>
         </div>
     </div>
-    <div class="main-section">
-        <div class="left-content">
-            <div class="main-title">Pet Body Composition</div>
-            <div class="main-desc">
-                Support your pet's health journey with advanced UWB-based tissue analysis.<br>
-                Choose a mode to start your prediction and health management.
-            </div>
-            <div class="main-btns">
-                <button class="main-btn" onclick="window.location.href='signal-processing.html'">Signal Processing Mode</button>
-                <button class="main-btn" onclick="window.location.href='dogfit-analysis.html'">DogFit Body Composition Mode</button>
-            </div>
-        </div>
-        <div class="right-img">
-            <img class="dog-img" src="https://pngimg.com/d/dog_PNG50348.png" alt="Dog">
-        </div>
-    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024 && 
+                !sidebar.contains(e.target) && 
+                !mobileToggle.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Update active nav item based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html> 
