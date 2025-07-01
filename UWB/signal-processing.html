@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UWB Tissue Thickness Prediction - Signal Processing</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/numeric@1.2.6/numeric.min.js"></script>
     <script src="js/x_scaler.js"></script>
@@ -32,7 +31,7 @@
             position: fixed;
             left: 0;
             top: 0;
-            width: 280px;
+            width: 260px;
             height: 100vh;
             background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
@@ -169,15 +168,6 @@
             .left-panel {
                 max-width: 100%;
             }
-            
-            .donut-container {
-                gap: 20px;
-            }
-            
-            .donut-chart {
-                width: 140px;
-                height: 140px;
-            }
 
             .thickness-grid {
                 grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -248,19 +238,12 @@
             }
 
             .thickness-container {
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .donut-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 24px;
+                gap: 12px;
             }
 
             .thickness-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 12px;
             }
 
             .thickness-card {
@@ -328,10 +311,6 @@
                 gap: 12px;
             }
             
-            .donut-container {
-                gap: 20px;
-            }
-
             .thickness-grid {
                 gap: 12px;
             }
@@ -1387,7 +1366,7 @@
 
             .thickness-grid {
                 grid-template-columns: 1fr;
-                gap: 16px;
+                gap: 12px;
             }
 
             .thickness-card {
@@ -1635,8 +1614,6 @@
                             <div id="bluetoothInfo" style="margin-top: 8px; font-size: 12px; color: #6b7280;"></div>
                         </div>
                         
-                        <div id="signalPlot" style="width:100%;height:350px;margin-bottom:20px;"></div>
-                        
                         <div id="signalInfo" style="display: none; margin-top: 20px;">
                             <div class="form-group">
                                 <label class="form-label">Detected Peaks:</label>
@@ -1741,29 +1718,7 @@
                 </div>
 
                 <!-- Composition Ratio -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Composition Ratio</h3>
-                    </div>
-                    <div class="card-content">
-                        <div class="donut-container">
-                            <div class="donut-chart">
-                                <canvas id="fatDonut"></canvas>
-                                <div class="donut-label">
-                                    <span id="fatPercentage" class="donut-percentage">0%</span>
-                                    <span class="donut-name">Fat</span>
-                                </div>
-                            </div>
-                            <div class="donut-chart">
-                                <canvas id="muscleDonut"></canvas>
-                                <div class="donut-label">
-                                    <span id="musclePercentage" class="donut-percentage">0%</span>
-                                    <span class="donut-name">Muscle</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        
 
                 <!-- Advice Section -->
                 <div class="card">
@@ -1871,53 +1826,6 @@
             
             const prediction = forward(scaled_features, WEIGHTS, BIASES);
             return Math.max(0, prediction);
-        }
-
-        // 图表初始化
-        function initializeCharts() {
-            const ctx = document.getElementById('fatDonut').getContext('2d');
-            fatChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [0, 100],
-                        backgroundColor: ['#1e40af', '#f8fbff'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    cutout: '70%',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
-
-            const muscleCtx = document.getElementById('muscleDonut').getContext('2d');
-            muscleChart = new Chart(muscleCtx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [0, 100],
-                        backgroundColor: ['#f59e0b', '#f8fbff'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    cutout: '70%',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            });
         }
 
         // 设置事件监听器
@@ -2318,49 +2226,35 @@
 
                 // 更新进度条
                 const maxThickness = 50;
-                const fatPercentage = (finalFatPrediction / maxThickness) * 100;
-                const musclePercentage = (finalMusclePrediction / maxThickness) * 100;
-                const ratioProgressPercentage = musclePercentage; // 使用肌肉成分百分比作为进度条
+                const ratioProgressPercentage = finalMusclePrediction; // 使用肌肉成分百分比作为进度条
                 
-                document.getElementById('fatProgress').style.width = `${Math.min(fatPercentage, 100)}%`;
-                document.getElementById('muscleProgress').style.width = `${Math.min(musclePercentage, 100)}%`;
+                document.getElementById('fatProgress').style.width = `${Math.min(finalFatPrediction, 50)}%`;
+                document.getElementById('muscleProgress').style.width = `${Math.min(finalMusclePrediction, 50)}%`;
                 document.getElementById('ratioProgress').style.width = `${Math.min(ratioProgressPercentage, 100)}%`;
                 
                 document.getElementById('fatValue').textContent = `${finalFatPrediction.toFixed(2)}`;
                 document.getElementById('muscleValue').textContent = `${finalMusclePrediction.toFixed(2)}`;
                 document.getElementById('ratioValue').textContent = `${finalRatioPrediction.toFixed(2)}`;
 
-                // 计算成分比例百分比
-                // ratio = muscle/fat, 所以 fat% = 1/(1+ratio) * 100, muscle% = ratio/(1+ratio) * 100
-                // 例如: ratio = 2.0 意味着肌肉是脂肪的2倍
-                // fat% = 1/(1+2) * 100 = 33.3%, muscle% = 2/(1+2) * 100 = 66.7%
-                const total = 1 + finalRatioPrediction;
-                const fatCompPercentage = (1 / total) * 100;
-                const muscleCompPercentage = (finalRatioPrediction / total) * 100;
-                
-                document.getElementById('fatPercentage').textContent = `${fatCompPercentage.toFixed(1)}%`;
-                document.getElementById('musclePercentage').textContent = `${muscleCompPercentage.toFixed(1)}%`;
+                // 计算并更新百分比
+                let fatPercent = 0, musclePercent = 0;
+                if (finalRatioPrediction > 0) {
+                    fatPercent = 1 / (1 + finalRatioPrediction) * 100;
+                    musclePercent = finalRatioPrediction / (1 + finalRatioPrediction) * 100;
+                }
+                document.getElementById('fatPercentage').textContent = fatPercent.toFixed(1) + '%';
+                document.getElementById('musclePercentage').textContent = musclePercent.toFixed(1) + '%';
 
                 // 添加数值变化动画
                 document.getElementById('fatValue').classList.add('value-change');
                 document.getElementById('muscleValue').classList.add('value-change');
                 document.getElementById('ratioValue').classList.add('value-change');
-                document.getElementById('fatPercentage').classList.add('value-change');
-                document.getElementById('musclePercentage').classList.add('value-change');
 
                 // 更新状态指示器
                 updateStatusIndicators(finalFatPrediction, finalMusclePrediction, finalRatioPrediction);
 
-                // 更新圆环图
-                fatChart.data.datasets[0].data = [finalFatPrediction, maxThickness - finalFatPrediction];
-                fatChart.data.datasets[0].backgroundColor = ['#1e40af', '#f8fbff'];
-                fatChart.update();
-                muscleChart.data.datasets[0].data = [finalMusclePrediction, maxThickness - finalMusclePrediction];
-                muscleChart.data.datasets[0].backgroundColor = ['#f59e0b', '#f8fbff'];
-                muscleChart.update();
-                
                 // 更新健康建议
-                updateAdvice(finalFatPrediction, finalMusclePrediction);
+                updateAdvice(finalFatPrediction, finalMusclePrediction, finalRatioPrediction);
                 
                 showMessage('Prediction completed successfully', 'success');
             } catch (error) {
@@ -2372,15 +2266,19 @@
         }
 
         // 更新建议
-        function updateAdvice(fatThickness, muscleThickness) {
+        function updateAdvice(fatThickness, muscleThickness, ratio) {
             const adviceContent = document.getElementById('adviceContent');
-            const fatRatio = fatThickness / (fatThickness + muscleThickness);
+            let fatPercent = 0;
+            if (ratio > 0) {
+                fatPercent = (1 / (1 + ratio)) * 100;
+            }
+            fatPercent = fatPercent.toFixed(1);
             
             let advice = '';
-            if (fatRatio > 0.4) {
+            if (fatPercent > 40) {
                 advice = `
                     <h4>⚠️ High Fat Ratio Detected</h4>
-                    <p style="color: #dc2626; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${(fatRatio * 100).toFixed(1)}%, which is above the recommended range.</p>
+                    <p style="color: #dc2626; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${fatPercent}%, which is above the recommended range.</p>
                     <div style="background: #fef2f2; border-radius: 8px; padding: 16px; border-left: 4px solid #dc2626;">
                         <h5 style="color: #dc2626; margin-bottom: 12px; font-size: 14px;">Recommendations:</h5>
                         <ul style="margin-left: 20px; color: #374151;">
@@ -2392,10 +2290,10 @@
                         </ul>
                     </div>
                 `;
-            } else if (fatRatio < 0.2) {
+            } else if (fatPercent < 20) {
                 advice = `
                     <h4>⚠️ Low Fat Ratio Detected</h4>
-                    <p style="color: #f59e0b; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${(fatRatio * 100).toFixed(1)}%, which is below the recommended range.</p>
+                    <p style="color: #f59e0b; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${fatPercent}%, which is below the recommended range.</p>
                     <div style="background: #fffbeb; border-radius: 8px; padding: 16px; border-left: 4px solid #f59e0b;">
                         <h5 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">Recommendations:</h5>
                         <ul style="margin-left: 20px; color: #374151;">
@@ -2410,7 +2308,7 @@
             } else {
                 advice = `
                     <h4>✅ Healthy Fat Ratio</h4>
-                    <p style="color: #059669; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${(fatRatio * 100).toFixed(1)}%, which is within the healthy range.</p>
+                    <p style="color: #059669; font-weight: 600; margin-bottom: 16px;">Your fat ratio is ${fatPercent}%, which is within the healthy range.</p>
                     <div style="background: #f0fdf4; border-radius: 8px; padding: 16px; border-left: 4px solid #059669;">
                         <h5 style="color: #059669; margin-bottom: 12px; font-size: 14px;">Maintenance Tips:</h5>
                         <ul style="margin-left: 20px; color: #374151;">
@@ -2588,7 +2486,6 @@
         // 页面加载时运行测试
         window.onload = function() {
             console.log("Page loaded, initializing...");
-            initializeCharts();
             setupEventListeners();
             checkBluetoothAvailability();
             testCompositionRatio(); // 运行测试
