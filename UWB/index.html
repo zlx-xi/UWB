@@ -551,7 +551,8 @@
 
     <script>
         // Mobile menu toggle
-        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+        document.getElementById('mobileMenuToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
             document.getElementById('sidebar').classList.toggle('open');
         });
 
@@ -559,10 +560,12 @@
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('sidebar');
             const mobileToggle = document.getElementById('mobileMenuToggle');
-            
-            if (window.innerWidth <= 1024 && 
-                !sidebar.contains(e.target) && 
-                !mobileToggle.contains(e.target)) {
+            if (
+                window.innerWidth <= 1024 &&
+                sidebar.classList.contains('open') &&
+                !sidebar.contains(e.target) &&
+                !mobileToggle.contains(e.target)
+            ) {
                 sidebar.classList.remove('open');
             }
         });
@@ -571,7 +574,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             const currentPage = window.location.pathname.split('/').pop() || 'index.html';
             const navItems = document.querySelectorAll('.nav-item');
-            
             navItems.forEach(item => {
                 item.classList.remove('active');
                 if (item.getAttribute('href') === currentPage) {
